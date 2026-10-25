@@ -2,7 +2,7 @@
 import { Hono } from "hono";
 import { loadSession, saveSession } from "./auth";
 import { renewDue } from "./billing";
-import { ensureSchema, getSettings, getUser, validSubscription, type Env } from "./db";
+import { ensureSchema, getSettings, getUser, syncVersions, validSubscription, type Env } from "./db";
 import { type AppEnv, form, pageCtx } from "./ctx";
 import adminRoutes from "./routes/admin";
 import apiRoutes from "./routes/api";
@@ -15,6 +15,8 @@ const app = new Hono<AppEnv>();
 app.use("*", async (c, next) => {
   await ensureSchema(c.env);
   c.set("settings", await getSettings(c.env));
+  // 새 설치파일이 올라오면 홈페이지 버전 표시도 저절로 바뀐다 (응답을 늦추지 않게 뒤에서)
+  c.executionCtx.waitUntil(syncVersions(c.env));
   const isApi = c.req.path.startsWith("/api/") || c.req.path.startsWith("/r/") || c.req.path.startsWith("/files/");
   if (isApi) {
     c.set("user", null);

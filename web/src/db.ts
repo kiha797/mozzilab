@@ -224,3 +224,22 @@ export function adRunning(ad: Ad): boolean {
   const t = now();
   return !!ad.active && (!ad.start_at || ad.start_at <= t) && (!ad.end_at || ad.end_at >= t);
 }
+
+/** 홈페이지에 보이는 제품 버전을 GitHub 최신 릴리스에 맞춘다 (10분에 한 번만 확인) */
+export async function syncVersions(env: Env): Promise<void> {
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = '_ver_checked_at'").first<{ value: string }>();
+  if (row && Date.now() - Number(row.value) < 10 * 60_000) return;
+  await env.DB.prepare("INSERT INTO settings (key, value) VALUES ('_ver_checked_at', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+    .bind(String(Date.now())).run();
+  try {
+    const r = await fetch("https://api.github.com/repos/kiha797/mozzilab/releases/latest", {
+      headers: { "User-Agent": "mozzilab-site", Accept: "application/vnd.github+json" },
+    });
+    if (!r.ok) return;
+    const j = (await r.json()) as { tag_name?: string };
+    const v = (j.tag_name || "").replace(/^v/i, "");
+    if (/^\d+\.\d+\.\d+$/.test(v)) await env.DB.prepare("UPDATE products SET version = ? WHERE status = 'released'").bind(v).run();
+  } catch (e) {
+    console.error("syncVersions", e);
+  }
+}
