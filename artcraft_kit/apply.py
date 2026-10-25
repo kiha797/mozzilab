@@ -178,6 +178,9 @@ def apply_photo(root, version):
          'pub const ISSUES: &str = "https://mozzilab.labelpos.com/support";')
     edit(root, links, 'tl!("Join us on Discord")', '"모찌LAB. 홈페이지"')
     edit(root, links, '(tl!("ArtCraft"), ARTCRAFT_WEBSITE)', '("모찌LAB. 제품 모두 보기", ARTCRAFT_WEBSITE)')
+    edit(root, links, '(tl!("모찌포토 website"), APP_PAGE)', '("모찌포토 소개", APP_PAGE)')
+    # 시작 화면 제목 옆 '오픈 소스' 표시 대신 모찌 플러스 안내
+    edit(root, f"{ui}/src/canvas.rs", 'tl!("open source").into()', '"무료 · 모찌LAB.".into()')
     edit(root, "crates/engine/src/shell_commands.rs", '"Join the ArtCraft Discord…"', '"모찌LAB. 홈페이지"')
     edit(root, "crates/engine/src/shell_commands.rs", '"ArtCraft Website"', '"모찌LAB. 제품 모두 보기"')
     edit(root, "crates/engine/src/shell_commands.rs", '"모찌포토 on GitHub"', '"광고 없이 쓰기 (모찌 플러스)"')
