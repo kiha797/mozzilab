@@ -486,7 +486,7 @@ fn hex(s: Option<&str>, fallback: Color32) -> Color32 {
 /// 제목 표시줄 오른쪽 (오른쪽→왼쪽으로 쌓이는 줄에서 호출): [로그인] 버튼과 광고 배너
 pub fn title_controls(ui: &mut egui::Ui) {
     with(|s| {
-        let label = if s.logged_in() { format!("{}{} 님 ▾", if s.premium() { "⭐ " } else { "" }, s.name()) } else { "로그인".to_string() };
+        let label = if s.logged_in() { format!("{}{} 님", if s.premium() { "[플러스] " } else { "" }, s.name()) } else { "로그인".to_string() };
         let btn = egui::Button::new(RichText::new(label).color(ACCENT).strong()).stroke(Stroke::new(1.2, ACCENT)).corner_radius(CornerRadius::same(6));
         if s.logged_in() {
             let r = ui.add(btn);
@@ -655,7 +655,7 @@ fn login_window(ctx: &Context, s: &mut State) {
     egui::Window::new("모찌랩 로그인").collapsible(false).resizable(false).anchor(Align2::CENTER_CENTER, [0.0, 0.0]).open(&mut open).show(ctx, |ui| {
         ui.set_width(360.0);
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("🍡 모찌랩 계정 연결").size(17.0).strong().color(ACCENT));
+            ui.label(RichText::new("모찌랩 계정 연결").size(17.0).strong().color(ACCENT));
             ui.add_space(8.0);
             ui.label(&s.login.info);
             if !s.login.user_code.is_empty() && !s.login.failed {
@@ -692,7 +692,7 @@ fn popup_ad(ctx: &Context, s: &mut State) {
             ui.horizontal(|ui| {
                 ui.label(RichText::new("AD").size(10.0).color(Color32::WHITE).background_color(bg));
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {
-                    if ui.small_button("✕").on_hover_text("닫기").clicked() {
+                    if ui.small_button("닫기").on_hover_text("닫기").clicked() {
                         s.popup = None;
                     }
                 });

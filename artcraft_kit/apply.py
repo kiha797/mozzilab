@@ -169,7 +169,7 @@ def apply_photo(root, version):
          'pub const APP_PAGE: &str = "https://mozzilab.labelpos.com/products/photo";')
     edit(root, links, 'pub const ISSUES: &str = "https://github.com/storytold/photocraft/issues";',
          'pub const ISSUES: &str = "https://mozzilab.labelpos.com/support";')
-    edit(root, links, 'tl!("Join us on Discord")', '"🍡 모찌랩 홈페이지"')
+    edit(root, links, 'tl!("Join us on Discord")', '"모찌랩 홈페이지"')
     edit(root, links, '(tl!("ArtCraft"), ARTCRAFT_WEBSITE)', '("원본 PhotoCraft 소스", ARTCRAFT_WEBSITE)')
     edit(root, "crates/engine/src/shell_commands.rs", '"Join the ArtCraft Discord…"', '"모찌랩 홈페이지"')
     edit(root, "crates/engine/src/shell_commands.rs", '"ArtCraft Website"', '"원본 PhotoCraft 소스 (GitHub)"')
@@ -249,7 +249,7 @@ def apply_vector(root, version):
     edit(root, help_rs, '    format!("{WEBSITE_URL}/apps/{APP_ID}")', '    "https://mozzilab.labelpos.com/products/vector".to_string()')
     for a, b in (('"Join Our Discord"', '"모찌랩 홈페이지"'), ('"ArtCraft Website"', '"원본 VectorCraft 소스 (GitHub)"'),
                  ('"모찌벡터 on getartcraft.com"', '"모찌벡터 소개 페이지"'), ('tl!("ArtCraft website")', '"원본 VectorCraft 소스"'),
-                 ('tl!("Join our Discord")', '"🍡 모찌랩 홈페이지"')):
+                 ('tl!("Join our Discord")', '"모찌랩 홈페이지"')):
         replace_in_tree(root, ["crates"], a, b)
     com = f"{ui}/src/community.rs"
     edit(root, com, "const DISCORD: Color32 = Color32::from_rgb(0x58, 0x65, 0xF2);",
