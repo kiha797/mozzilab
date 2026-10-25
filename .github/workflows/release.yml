@@ -205,8 +205,8 @@ jobs:
             | 📸 모찌캡처 | `MochiCapture_Setup.exe` |
             | 📄 모찌PDF | `MochiPDF_Setup.exe` |
             | 🗜️ 모찌압축 | `MochiZip_Setup.exe` |
-            | 🎨 모찌포토 (포토샵 대체 · PhotoCraft 기반) | `MochiPhoto_Setup.exe` |
-            | ✒️ 모찌벡터 (일러스트 대체 · VectorCraft 기반) | `MochiVector_Setup.exe` |
+            | 🎨 모찌포토 (포토샵 대체) | `MochiPhoto_Setup.exe` |
+            | ✒️ 모찌벡터 (일러스트 대체) | `MochiVector_Setup.exe` |
 
             Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 광고 없이 쓰기: https://mozzilab.labelpos.com/pricing
           files: out/*.exe

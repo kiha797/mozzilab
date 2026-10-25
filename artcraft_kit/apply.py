@@ -8,7 +8,7 @@
  2. 프로그램 아이콘을 모찌 아이콘으로 바꾼다
  3. 설정 폴더 · 앱 ID 를 바꿔서 PC 에 설치된 원본 PhotoCraft 와 섞이지 않게 한다
  4. 모찌랩 로그인 · 광고 · 자동 업데이트(mozzi.rs)를 붙인다
- 5. 정보 창에 원본 출처(MIT/Apache-2.0)를 표시한다
+ 5. 화면에서 원본 이름 · 링크를 빼고, 라이선스 파일(필수)은 설치 폴더에 넣는다
 
 원본 코드가 바뀌어서 고칠 곳을 못 찾으면 바로 멈추고 알려 준다 (조용히 틀리지 않도록)."""
 import os
@@ -146,8 +146,8 @@ def install_mozzi(root, app, version, ui_crate):
         write(toml, s)
 
 
-ATTRIBUTION = ("이 프로그램은 오픈소스 {up}(ArtCraft 팀 · MIT/Apache-2.0)를 바탕으로 모찌LAB.이 만들었습니다. "
-               "원본 소스: https://github.com/storytold/{lower}")
+# 화면에는 원본 이름을 쓰지 않는다. 라이선스 전문(필수)은 설치 폴더의 licenses 폴더에 들어간다.
+LICENSE_NOTE = "이 프로그램에 쓰인 오픈소스 구성 요소의 라이선스는 설치 폴더의 licenses 폴더에 있습니다."
 
 
 def apply_photo(root, version):
@@ -168,20 +168,24 @@ def apply_photo(root, version):
     edit(root, links, 'pub const DISCORD: &str = "https://discord.gg/artcraft";',
          'pub const DISCORD: &str = "https://mozzilab.labelpos.com";')
     edit(root, links, 'pub const ARTCRAFT_WEBSITE: &str = "https://getartcraft.com";',
-         'pub const ARTCRAFT_WEBSITE: &str = "https://github.com/storytold/photocraft";')
+         'pub const ARTCRAFT_WEBSITE: &str = "https://mozzilab.labelpos.com";')
+    edit(root, links, 'pub const GITHUB: &str = "https://github.com/storytold/photocraft";',
+         'pub const GITHUB: &str = "https://mozzilab.labelpos.com/pricing";')
+    edit(root, links, '(tl!("GitHub"), GITHUB)', '("광고 없이 쓰기", GITHUB)')
     edit(root, links, 'pub const APP_PAGE: &str = "https://getartcraft.com/apps/photocraft";',
          'pub const APP_PAGE: &str = "https://mozzilab.labelpos.com/products/photo";')
     edit(root, links, 'pub const ISSUES: &str = "https://github.com/storytold/photocraft/issues";',
          'pub const ISSUES: &str = "https://mozzilab.labelpos.com/support";')
     edit(root, links, 'tl!("Join us on Discord")', '"모찌LAB. 홈페이지"')
-    edit(root, links, '(tl!("ArtCraft"), ARTCRAFT_WEBSITE)', '("원본 PhotoCraft 소스", ARTCRAFT_WEBSITE)')
+    edit(root, links, '(tl!("ArtCraft"), ARTCRAFT_WEBSITE)', '("모찌LAB. 제품 모두 보기", ARTCRAFT_WEBSITE)')
     edit(root, "crates/engine/src/shell_commands.rs", '"Join the ArtCraft Discord…"', '"모찌LAB. 홈페이지"')
-    edit(root, "crates/engine/src/shell_commands.rs", '"ArtCraft Website"', '"원본 PhotoCraft 소스 (GitHub)"')
+    edit(root, "crates/engine/src/shell_commands.rs", '"ArtCraft Website"', '"모찌LAB. 제품 모두 보기"')
+    edit(root, "crates/engine/src/shell_commands.rs", '"모찌포토 on GitHub"', '"광고 없이 쓰기 (모찌 플러스)"')
     # 정보 창: 모찌 버전 + 원본 출처
     edit(root, f"{ui}/src/dialogs.rs",
          'ui.label(crate::i18n::fmt(tl!("Version {version}"), &[("version", &photocraft_engine::build_info::long_version())]));',
-         'ui.label(format!("버전 {}  (PhotoCraft {})", crate::mozzi::VERSION, photocraft_engine::build_info::VERSION));\n'
-         f'            ui.weak("{ATTRIBUTION.format(up="PhotoCraft", lower="photocraft")}");')
+         'ui.label(format!("버전 {}", crate::mozzi::VERSION));\n'
+         f'            ui.weak("{LICENSE_NOTE}");')
     # 원본 업데이트 확인은 끄고, 모찌랩 업데이트(mozzi.rs)를 쓴다
     edit(root, "apps/photocraft/src/updates.rs", "let result = fetch(LATEST, Duration::from_secs(15));",
          "let result: CheckResult = if LATEST.is_empty() { fetch(LATEST, Duration::from_secs(15)) } else { Ok(None) };")
@@ -191,7 +195,7 @@ def apply_photo(root, version):
          'const APP_ID: &str = "com.mozzilab.MochiPhoto";')
     edit(root, "apps/photocraft/build.rs", '.set("CompanyName", "Learning Machines LLC")', '.set("CompanyName", "MozziLab")')
     edit(root, "apps/photocraft/build.rs", '.set("LegalCopyright", "Copyright (c) the 모찌포토 authors. MIT OR Apache-2.0.")',
-         '.set("LegalCopyright", "Based on PhotoCraft (c) the PhotoCraft authors, MIT OR Apache-2.0. MozziLab.")')
+         '.set("LegalCopyright", "MozziLab. Open-source licenses: see the licenses folder.")')
     render_icons(root, app, read(os.path.join(KIT, "icons", "photo.svg")))
 
 
@@ -249,10 +253,13 @@ def apply_vector(root, version):
     edit(root, help_rs, 'pub const DISCORD_URL: &str = "https://discord.gg/artcraft";',
          'pub const DISCORD_URL: &str = "https://mozzilab.labelpos.com";')
     edit(root, help_rs, 'pub const WEBSITE_URL: &str = "https://getartcraft.com";',
-         'pub const WEBSITE_URL: &str = "https://github.com/storytold/vectorcraft";')
+         'pub const WEBSITE_URL: &str = "https://mozzilab.labelpos.com";')
+    edit(root, help_rs, '    format!("https://github.com/storytold/{APP_ID}")', '    "https://mozzilab.labelpos.com/pricing".to_string()')
+    edit(root, help_rs, '"{} → {url} the ArtCraft community Discord"', '"{} → {url}"')
     edit(root, help_rs, '    format!("{WEBSITE_URL}/apps/{APP_ID}")', '    "https://mozzilab.labelpos.com/products/vector".to_string()')
-    for a, b in (('"Join Our Discord"', '"모찌LAB. 홈페이지"'), ('"ArtCraft Website"', '"원본 VectorCraft 소스 (GitHub)"'),
-                 ('"모찌벡터 on getartcraft.com"', '"모찌벡터 소개 페이지"'), ('tl!("ArtCraft website")', '"원본 VectorCraft 소스"'),
+    for a, b in (('"Join Our Discord"', '"모찌LAB. 홈페이지"'), ('"ArtCraft Website"', '"모찌LAB. 제품 모두 보기"'), ('"모찌벡터 on GitHub"', '"광고 없이 쓰기 (모찌 플러스)"'),
+                 ('tl!("Source code on GitHub")', '"광고 없이 쓰기 (모찌 플러스)"'),
+                 ('"모찌벡터 on getartcraft.com"', '"모찌벡터 소개 페이지"'), ('tl!("ArtCraft website")', '"모찌LAB. 제품 모두 보기"'),
                  ('tl!("Join our Discord")', '"모찌LAB. 홈페이지"')):
         replace_in_tree(root, ["crates"], a, b)
     com = f"{ui}/src/community.rs"
@@ -262,16 +269,16 @@ def apply_vector(root, version):
     # 정보 창: 모찌 버전 + 원본 출처
     about = f"{ui}/src/dialogs/about.rs"
     edit(root, about, '&[("version", env!("CARGO_PKG_VERSION"))],',
-         '&[("version", &format!("{} (VectorCraft {})", crate::mozzi::VERSION, env!("CARGO_PKG_VERSION")))],')
+         '&[("version", crate::mozzi::VERSION)],')
     edit(root, about, '"Part of ArtCraft. MIT OR Apache-2.0. Fonts: Source Sans 3, Inter, JetBrains Mono (OFL). Icons: Lucide (ISC) + 모찌벡터."',
-         f'"{ATTRIBUTION.format(up="VectorCraft", lower="vectorcraft")} 글꼴: Source Sans 3, Inter, JetBrains Mono (OFL). 아이콘: Lucide (ISC)."')
+         f'"{LICENSE_NOTE}"')
     # 설정 폴더 · 앱 ID: PC 에 깔린 원본 VectorCraft 와 따로 쓰기
     replace_in_tree(root, ["apps/vectorcraft/src"], 'prefs_path_for("모찌벡터", "vectorcraft")', 'prefs_path_for("MochiVector", "mochivector")')
     edit(root, "apps/vectorcraft/src/profile.rs", '("모찌벡터", "vectorcraft")', '("MochiVector", "mochivector")')
     edit(root, "apps/vectorcraft/src/main.rs", '.with_app_id("ai.storyteller.vectorcraft")', '.with_app_id("com.mozzilab.MochiVector")')
     edit(root, "apps/vectorcraft/build.rs", '.set("CompanyName", "Learning Machines LLC")', '.set("CompanyName", "MozziLab")')
     edit(root, "apps/vectorcraft/build.rs", '.set("LegalCopyright", "Copyright (c) the 모찌벡터 authors. MIT OR Apache-2.0.")',
-         '.set("LegalCopyright", "Based on VectorCraft (c) the VectorCraft authors, MIT OR Apache-2.0. MozziLab.")')
+         '.set("LegalCopyright", "MozziLab. Open-source licenses: see the licenses folder.")')
     render_icons(root, app, read(os.path.join(KIT, "icons", "vector.svg")))
 
 
