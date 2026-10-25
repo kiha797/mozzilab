@@ -1,29 +1,34 @@
-# 모찌포토 설치 가이드 (초보자용)
+# 모찌포토 — 포토샵 대체 프로그램
 
-## 방법 1. 설치파일로 설치 (가장 쉬움 · 추천)
-1. https://mozzilab.labelpos.com 에 들어갑니다.
-2. **모찌포토** 카드의 **[무료 다운로드]** 를 누르면 `MochiPhoto_Setup.exe` 가 내려받아집니다.
-3. 내려받은 파일을 두 번 누르고 **[다음] → [설치]** 를 누르면 끝!
-   - "Windows의 PC 보호" 파란 창이 뜨면 **[추가 정보] → [실행]** 을 누르세요.
-4. 바탕화면의 **모찌포토** 아이콘으로 실행합니다. 새 버전이 나오면 자동으로 업데이트를 알려 줍니다.
+모찌포토 는 오픈소스 **PhotoCraft**(아트크래프트 ArtCraft 팀 · MIT/Apache-2.0)를 바탕으로 모찌랩이 만든 프로그램입니다.
+화면 · 메뉴 · 도구 · 단축키가 포토샵 와 거의 같고, 모찌랩 로그인 · 광고 · 자동 업데이트가 붙어 있어요.
 
-## 방법 2. 파이썬으로 직접 실행 (개발/수정용)
-1. https://www.python.org/downloads/ 에서 파이썬 설치 (첫 화면 **"Add python.exe to PATH" 꼭 체크**)
-2. 이 폴더의 `1_install.bat` 두 번 클릭 → 필요한 프로그램 자동 설치 (몇 분)
-3. `2_run.bat` 두 번 클릭 → 실행
-4. exe 파일로 만들려면 `3_build_exe.bat` (결과: `dist\MochiPhoto\MochiPhoto.exe`)
+## 설치 (가장 쉬운 방법)
+1. https://mozzilab.labelpos.com 에서 **모찌포토** 의 **[무료 다운로드]** 를 누릅니다.
+2. 받은 `MochiPhoto_Setup.exe` 를 두 번 누르고 **[다음] → [설치]**.
+   - 파란 "Windows의 PC 보호" 창이 뜨면 **[추가 정보] → [실행]**.
+3. 바탕화면의 **모찌포토** 아이콘으로 실행! 새 버전이 나오면 자동으로 알려 줍니다.
 
-> 이 폴더만 따로 복사하면 안 되고, 상위 폴더의 `shared` 폴더가 함께 있어야 합니다.
+> PC 에 원본 PhotoCraft 가 깔려 있어도 괜찮아요. 설정 폴더(`%APPDATA%\\MochiPhoto`)가 따로라 서로 섞이지 않습니다.
 
-## 무엇을 할 수 있나요?
-| 포토샵 기능 | 모찌포토 | 단축키 |
-|---|---|---|
-| 레이어 · 불투명도 · 혼합 모드(곱하기·스크린·오버레이 등 13가지) | ✅ 오른쪽 [레이어] 패널 | Ctrl+J 복제, Ctrl+E 병합 |
-| 이동 / 사각형·원형 선택 / 올가미 / 마술봉 / 자르기 | ✅ | V · M · L · W · C |
-| 브러시(경도·불투명도) / 연필 / 지우개 / 복제 도장 | ✅ | B · E · S (Alt+클릭 = 원본) |
-| 페인트 통 / 그레이디언트 / 문자 / 도형 / 스포이드 | ✅ | G · T · U · I |
-| 밝기·대비, 레벨, 색조·채도, 색상 균형, 흑백, 반전, 자동 대비 | ✅ [이미지 > 조정] (미리 보기) | Ctrl+L · Ctrl+U · Ctrl+I |
-| 흐림, 선명하게, 노이즈, 모자이크, 비네팅, 유화, 엠보스 | ✅ [필터] | |
-| 이미지 크기 / 캔버스 크기 / 회전 / 뒤집기 / 변형 | ✅ | Ctrl+Alt+I · Ctrl+T |
-| **PSD 열기·저장 (레이어 유지)** | ✅ 포토샵 · 포토피아 · 포토크래프트와 주고받기 | |
-| 저장 형식 | .mphoto(모찌포토) · .psd · PNG · JPG · WEBP · BMP · GIF · TIFF | Ctrl+S · Ctrl+Shift+E |
+## 이 폴더에 있는 것
+| 파일 | 내용 |
+|---|---|
+| `installer.iss` | 설치 프로그램(Inno Setup) 설정 |
+| `../artcraft_kit/apply.py` | 원본 PhotoCraft 소스를 모찌포토 로 바꾸는 스크립트 (이름 · 아이콘 · 로그인 · 광고 · 업데이트) |
+| `../artcraft_kit/mozzi.rs` | 모찌랩 로그인 · 광고 · 자동 업데이트 코드 (Rust) |
+| `../artcraft_kit/upstream.json` | 어느 버전의 원본을 쓸지 (커밋 번호) |
+
+## 원본이 새 버전을 내면? (업그레이드 방법)
+1. `artcraft_kit/upstream.json` 의 `rev` 를 원본 저장소(https://github.com/storytold/photocraft)의 새 커밋 번호로 바꿉니다.
+2. GitHub → Actions → "설치파일 만들기" → Run workflow.
+3. 원본 코드가 많이 바뀌어 `apply.py` 가 고칠 곳을 못 찾으면 빌드가 멈추고 어느 파일인지 알려 줍니다. 그 부분만 고치면 돼요.
+
+## 내 PC 에서 직접 빌드하기 (개발자용)
+```
+git clone https://github.com/storytold/photocraft src
+cd src && git checkout <upstream.json 의 rev> && cd ..
+python artcraft_kit/apply.py photo src 1.2.0
+cd src && cargo build --release -p photocraft
+```
+(Rust 설치: https://rustup.rs — 첫 빌드는 20~40분 걸립니다)

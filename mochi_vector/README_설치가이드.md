@@ -1,30 +1,34 @@
-# 모찌벡터 설치 가이드 (초보자용)
+# 모찌벡터 — 일러스트레이터 대체 프로그램
 
-## 방법 1. 설치파일로 설치 (가장 쉬움 · 추천)
-1. https://mozzilab.labelpos.com 에 들어갑니다.
-2. **모찌벡터** 카드의 **[무료 다운로드]** 를 누르면 `MochiVector_Setup.exe` 가 내려받아집니다.
-3. 내려받은 파일을 두 번 누르고 **[다음] → [설치]** 를 누르면 끝!
-   - "Windows의 PC 보호" 파란 창이 뜨면 **[추가 정보] → [실행]** 을 누르세요.
-4. 바탕화면의 **모찌벡터** 아이콘으로 실행합니다. 새 버전이 나오면 자동으로 업데이트를 알려 줍니다.
+모찌벡터 는 오픈소스 **VectorCraft**(아트크래프트 ArtCraft 팀 · MIT/Apache-2.0)를 바탕으로 모찌랩이 만든 프로그램입니다.
+화면 · 메뉴 · 도구 · 단축키가 일러스트레이터 와 거의 같고, 모찌랩 로그인 · 광고 · 자동 업데이트가 붙어 있어요.
 
-## 방법 2. 파이썬으로 직접 실행 (개발/수정용)
-1. https://www.python.org/downloads/ 에서 파이썬 설치 (첫 화면 **"Add python.exe to PATH" 꼭 체크**)
-2. 이 폴더의 `1_install.bat` 두 번 클릭 → 필요한 프로그램 자동 설치 (몇 분)
-3. `2_run.bat` 두 번 클릭 → 실행
-4. exe 파일로 만들려면 `3_build_exe.bat` (결과: `dist\MochiVector\MochiVector.exe`)
+## 설치 (가장 쉬운 방법)
+1. https://mozzilab.labelpos.com 에서 **모찌벡터** 의 **[무료 다운로드]** 를 누릅니다.
+2. 받은 `MochiVector_Setup.exe` 를 두 번 누르고 **[다음] → [설치]**.
+   - 파란 "Windows의 PC 보호" 창이 뜨면 **[추가 정보] → [실행]**.
+3. 바탕화면의 **모찌벡터** 아이콘으로 실행! 새 버전이 나오면 자동으로 알려 줍니다.
 
-> 이 폴더만 따로 복사하면 안 되고, 상위 폴더의 `shared` 폴더가 함께 있어야 합니다.
+> PC 에 원본 VectorCraft 가 깔려 있어도 괜찮아요. 설정 폴더(`%APPDATA%\\MochiVector`)가 따로라 서로 섞이지 않습니다.
 
-## 무엇을 할 수 있나요?
-| 일러스트레이터 기능 | 모찌벡터 | 단축키 |
-|---|---|---|
-| 선택 / 직접 선택(점·곡선 손잡이 편집) | ✅ 크기 조절 · 회전 손잡이 | V · A |
-| 펜(베지어 곡선) / 연필(자유 곡선) / 선 | ✅ | P · N · \ |
-| 사각형 · 둥근 사각형 · 타원 · 다각형 · 별 | ✅ | M · L · Y |
-| 문자 / 윤곽선 만들기(문자 → 도형) | ✅ | T · Ctrl+Shift+O |
-| 칠 · 선(두께 · 파선 · 점선) · 그레이디언트 · 불투명도 | ✅ 오른쪽 [속성] | |
-| 그룹 / 정돈(앞·뒤) / 정렬 · 간격 맞춤 / 뒤집기 · 회전 | ✅ | Ctrl+G · Ctrl+] · Ctrl+[ |
-| 패스파인더 (합치기 · 빼기 · 교차 · 제외) | ✅ | |
-| 잠금 · 숨기기 · 레이어(개체) 목록 | ✅ | Ctrl+2 · Ctrl+3 |
-| **SVG 열기/내보내기** | ✅ 일러스트 · 벡터크래프트 · 피그마와 주고받기 | |
-| 내보내기 | SVG · PDF(벡터 그대로) · PNG(1~4배, 투명 배경) · JPG | Ctrl+Shift+E |
+## 이 폴더에 있는 것
+| 파일 | 내용 |
+|---|---|
+| `installer.iss` | 설치 프로그램(Inno Setup) 설정 |
+| `../artcraft_kit/apply.py` | 원본 VectorCraft 소스를 모찌벡터 로 바꾸는 스크립트 (이름 · 아이콘 · 로그인 · 광고 · 업데이트) |
+| `../artcraft_kit/mozzi.rs` | 모찌랩 로그인 · 광고 · 자동 업데이트 코드 (Rust) |
+| `../artcraft_kit/upstream.json` | 어느 버전의 원본을 쓸지 (커밋 번호) |
+
+## 원본이 새 버전을 내면? (업그레이드 방법)
+1. `artcraft_kit/upstream.json` 의 `rev` 를 원본 저장소(https://github.com/storytold/vectorcraft)의 새 커밋 번호로 바꿉니다.
+2. GitHub → Actions → "설치파일 만들기" → Run workflow.
+3. 원본 코드가 많이 바뀌어 `apply.py` 가 고칠 곳을 못 찾으면 빌드가 멈추고 어느 파일인지 알려 줍니다. 그 부분만 고치면 돼요.
+
+## 내 PC 에서 직접 빌드하기 (개발자용)
+```
+git clone https://github.com/storytold/vectorcraft src
+cd src && git checkout <upstream.json 의 rev> && cd ..
+python artcraft_kit/apply.py vector src 1.2.0
+cd src && cargo build --release -p vectorcraft
+```
+(Rust 설치: https://rustup.rs — 첫 빌드는 20~40분 걸립니다)

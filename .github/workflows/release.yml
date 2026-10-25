@@ -28,8 +28,6 @@ jobs:
           - { dir: mochi_capture, exe: MochiCapture, name: 모찌캡처, extra: "" }
           - { dir: mochi_pdf, exe: MochiPDF, name: 모찌PDF, extra: "--collect-all pypdfium2 --collect-all pypdfium2_raw" }
           - { dir: mochi_zip, exe: MochiZip, name: 모찌압축, extra: "--collect-submodules py7zr" }
-          - { dir: mochi_photo, exe: MochiPhoto, name: 모찌포토, extra: "" }
-          - { dir: mochi_vector, exe: MochiVector, name: 모찌벡터, extra: "" }
     defaults:
       run:
         shell: pwsh
@@ -83,9 +81,98 @@ jobs:
           path: ${{ matrix.dir }}/installer_output/${{ matrix.exe }}_Setup.exe
           if-no-files-found: error
 
+  # 모찌포토 · 모찌벡터: 아트크래프트(PhotoCraft · VectorCraft) 오픈소스를 받아서
+  # artcraft_kit/apply.py 로 모찌 버전으로 바꾼 뒤 Rust 로 빌드한다
+  craft:
+    name: ${{ matrix.name }}
+    runs-on: windows-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { app: photo, dir: mochi_photo, exe: MochiPhoto, name: 모찌포토, pkg: photocraft }
+          - { app: vector, dir: mochi_vector, exe: MochiVector, name: 모찌벡터, pkg: vectorcraft }
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 버전 정하기
+        id: ver
+        run: |
+          $v = "${{ github.event.inputs.version }}"
+          if (-not $v) { $v = "${{ github.ref_name }}".TrimStart("v") }
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 원본 소스 받기 (고정된 커밋)
+        run: |
+          $u = (Get-Content artcraft_kit/upstream.json -Raw | ConvertFrom-Json).${{ matrix.app }}
+          git init -q src
+          git -C src remote add origin $u.repo
+          git -C src fetch -q --depth 1 origin $u.rev
+          git -C src checkout -q FETCH_HEAD
+
+      - name: 모찌 버전으로 바꾸기 (이름 · 아이콘 · 로그인 · 광고 · 업데이트)
+        run: |
+          python -m pip install -q Pillow
+          python artcraft_kit/apply.py ${{ matrix.app }} src ${{ steps.ver.outputs.version }}
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src -> target
+          key: ${{ matrix.app }}
+
+      - name: 실행파일(exe) 만들기
+        working-directory: src
+        env:
+          # Visual C++ 런타임이 없는 PC 에서도 바로 실행되게 런타임을 exe 안에 넣는다
+          RUSTFLAGS: "-C target-feature=+crt-static"
+        run: cargo build --release -p ${{ matrix.pkg }}
+
+      - name: 설치할 파일 모으기
+        run: |
+          $dist = "${{ matrix.dir }}/dist"
+          New-Item -ItemType Directory -Force "$dist/licenses" | Out-Null
+          Copy-Item "src/target/release/${{ matrix.pkg }}.exe" "$dist/${{ matrix.exe }}.exe"
+          foreach ($f in @("LICENSE-MIT", "LICENSE-APACHE", "NOTICE", "ATTRIBUTION.md")) {
+            if (Test-Path "src/$f") { Copy-Item "src/$f" "$dist/licenses/$f" }
+          }
+          Get-ChildItem $dist -Recurse | Select-Object FullName, Length
+
+      - name: 실행 점검 (--version)
+        run: |
+          $p = Start-Process -FilePath "${{ matrix.dir }}/dist/${{ matrix.exe }}.exe" -ArgumentList "--version" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "${{ matrix.name }} 실행 점검 실패 (종료 코드 $($p.ExitCode))" }
+          Write-Host "${{ matrix.name }} 실행 점검 통과"
+
+      - name: Inno Setup 준비
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+
+      - name: 설치파일(Setup.exe) 만들기
+        working-directory: ${{ matrix.dir }}
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss
+          Get-ChildItem installer_output
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.exe }}
+          path: ${{ matrix.dir }}/installer_output/${{ matrix.exe }}_Setup.exe
+          if-no-files-found: error
+
   release:
     name: 다운로드 페이지에 올리기
-    needs: build
+    needs: [build, craft]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -113,8 +200,8 @@ jobs:
             | 📸 모찌캡처 | `MochiCapture_Setup.exe` |
             | 📄 모찌PDF | `MochiPDF_Setup.exe` |
             | 🗜️ 모찌압축 | `MochiZip_Setup.exe` |
-            | 🎨 모찌포토 | `MochiPhoto_Setup.exe` |
-            | ✒️ 모찌벡터 | `MochiVector_Setup.exe` |
+            | 🎨 모찌포토 (포토샵 대체 · PhotoCraft 기반) | `MochiPhoto_Setup.exe` |
+            | ✒️ 모찌벡터 (일러스트 대체 · VectorCraft 기반) | `MochiVector_Setup.exe` |
 
             Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 광고 없이 쓰기: https://mozzilab.labelpos.com/pricing
           files: out/*.exe

@@ -156,11 +156,11 @@ async function seed(env: Env) {
       env.DB.prepare(ins).bind("zip", "모찌압축", 3, "released", "1.0.0", "#ffb86b", "꾹 눌러 담는 압축 프로그램",
         "ZIP · 7Z 압축하기/풀기 · TAR 풀기 · 암호(AES-256) · 한글 이름 깨진 ZIP 복구 · 마우스 오른쪽 메뉴로 바로 풀기.",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiZip_Setup.exe"),
-      env.DB.prepare(ins).bind("photo", "모찌포토", 4, "released", "1.1.0", "#8a6cf0", "포토샵처럼 말랑하게, 사진 편집",
-        "레이어 · 혼합 모드 · 브러시 · 선택(마술봉·올가미) · 복제 도장 · 색 보정 · 필터 · PSD 열기/저장.",
+      env.DB.prepare(ins).bind("photo", "모찌포토", 4, "released", "1.2.0", "#8a6cf0", "포토샵을 그대로, 말랑하게",
+        "포토샵과 거의 같은 화면·단축키. 레이어 · 마스크 · 조정 레이어 · 레이어 스타일 · 문자 · 펜 · 브러시 · 필터 · PSD 완벽 호환 (오픈소스 PhotoCraft 기반).",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiPhoto_Setup.exe"),
-      env.DB.prepare(ins).bind("vector", "모찌벡터", 5, "released", "1.1.0", "#2f9be8", "일러스트처럼 쓱쓱, 벡터 디자인",
-        "펜(베지어) · 도형 · 문자 · 그룹 · 정렬 · 패스파인더 · 그레이디언트 · SVG/PDF/PNG 내보내기.",
+      env.DB.prepare(ins).bind("vector", "모찌벡터", 5, "released", "1.2.0", "#2f9be8", "일러스트레이터를 그대로, 쓱쓱",
+        "일러스트레이터와 거의 같은 화면·단축키. 펜 · 도형 · 문자 · 패스파인더 · 대지 · 심볼 · 그레이디언트 · SVG/PDF/AI 열기·저장 (오픈소스 VectorCraft 기반).",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiVector_Setup.exe"),
     ]);
   }

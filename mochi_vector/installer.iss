@@ -1,6 +1,6 @@
-﻿; 모찌벡터 설치 프로그램 (Inno Setup 6)
-; 직접 만들 때: 3_build_exe.bat 실행 후 이 파일을 Inno Setup 으로 열고 [Build] > [Compile]
-; (GitHub 에서는 .github/workflows/release.yml 이 자동으로 만듭니다)
+; 모찌벡터 설치 프로그램 (Inno Setup 6)
+; GitHub 의 .github/workflows/release.yml 이 자동으로 만듭니다.
+; (dist\MochiVector.exe 는 아트크래프트 vectorcraft 소스를 artcraft_kit\apply.py 로 바꿔서 빌드한 결과)
 #define MyAppName "모찌벡터"
 #ifndef MyAppVersion
   #define MyAppVersion "1.0.0"
@@ -18,13 +18,16 @@ DefaultDirName={autopf}\MochiVector
 DefaultGroupName={#MyAppName}
 OutputDir=installer_output
 OutputBaseFilename=MochiVector_Setup
-SetupIconFile=assets\app.ico
+SetupIconFile=..\artcraft_kit\icons\vector.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
-Compression=lzma2
+Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequiredOverridesAllowed=dialog
 ChangesAssociations=yes
+CloseApplications=yes
 
 [Languages]
 Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
@@ -33,7 +36,13 @@ Name: "korean"; MessagesFile: "compiler:Languages\Korean.isl"
 Name: "desktopicon"; Description: "바탕화면에 바로가기 만들기"; GroupDescription: "추가 작업:"
 
 [Files]
-Source: "dist\MochiVector\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\MochiVector.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "dist\licenses\*"; DestDir: "{app}\licenses"; Flags: ignoreversion recursesubdirs
+
+[InstallDelete]
+; 예전(파이썬) 버전의 파일 정리
+Type: filesandordirs; Name: "{app}\_internal"
+Type: files; Name: "{app}\*.pyd"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -44,9 +53,18 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.svg\shell\MochiVector"; ValueType: string; ValueName: ""; ValueData: "모찌벡터로 열기"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.svg\shell\MochiVector"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"
 Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.svg\shell\MochiVector\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
-; .mvec 파일(이 프로그램 전용 저장 파일)을 두 번 누르면 바로 열리게
-Root: HKA; Subkey: "Software\Classes\.mvec"; ValueType: string; ValueName: ""; ValueData: "MochiVector.Document"; Flags: uninsdeletevalue
-Root: HKA; Subkey: "Software\Classes\MochiVector.Document"; ValueType: string; ValueName: ""; ValueData: "모찌벡터 디자인"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.ai\shell\MochiVector"; ValueType: string; ValueName: ""; ValueData: "모찌벡터로 열기"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.ai\shell\MochiVector"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.ai\shell\MochiVector\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.eps\shell\MochiVector"; ValueType: string; ValueName: ""; ValueData: "모찌벡터로 열기"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.eps\shell\MochiVector"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.eps\shell\MochiVector\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.pdf\shell\MochiVector"; ValueType: string; ValueName: ""; ValueData: "모찌벡터로 열기"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.pdf\shell\MochiVector"; ValueType: string; ValueName: "Icon"; ValueData: "{app}\{#MyAppExeName}"
+Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.pdf\shell\MochiVector\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+; .vectorcraft 파일(작업 파일)을 두 번 누르면 바로 열리게
+Root: HKA; Subkey: "Software\Classes\.vectorcraft"; ValueType: string; ValueName: ""; ValueData: "MochiVector.Document"; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\MochiVector.Document"; ValueType: string; ValueName: ""; ValueData: "모찌벡터 작업 파일"; Flags: uninsdeletekey
 Root: HKA; Subkey: "Software\Classes\MochiVector.Document\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
 Root: HKA; Subkey: "Software\Classes\MochiVector.Document\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 
