@@ -44,14 +44,56 @@ MozziLab/
 
 ---
 
-## 3. 배포 순서 (처음 한 번, 약 30분)
+## 3. Cloudflare 자동 배포 설정 (추천 · 약 10분)
+
+GitHub 에 코드가 올라가면 **GitHub 이 알아서 Cloudflare 에 배포**합니다 (`.github/workflows/deploy.yml`).
+데이터베이스 만들기, 배포, 도메인 연결, 관리자 계정 만들기까지 자동입니다. **열쇠 4개만 넣어 주세요.**
+
+### 3-A. Cloudflare 에서 열쇠(API 토큰) 만들기
+1. https://dash.cloudflare.com/profile/api-tokens 접속 → **토큰 생성(Create Token)**
+2. **"Cloudflare Workers 편집(Edit Cloudflare Workers)"** 템플릿 옆 **템플릿 사용(Use template)**
+3. **권한(Permissions)** 에서 **+ 추가(Add more)** 를 눌러 아래 2줄을 더 넣기
+   - `계정(Account)` · `D1` · `편집(Edit)`
+   - `영역(Zone)` · `DNS` · `편집(Edit)`
+4. **계정 리소스(Account Resources)**: 내 계정 선택 / **영역 리소스(Zone Resources)**: `특정 영역(Specific zone)` → `labelpos.com`
+5. **요약 보기(Continue to summary)** → **토큰 생성(Create Token)** → 나온 긴 글자를 **복사** (이 화면을 닫으면 다시 볼 수 없어요!)
+
+### 3-B. Cloudflare 계정 ID 복사
+https://dash.cloudflare.com → 왼쪽 **Workers 및 Pages(Workers & Pages)** → 오른쪽 아래 **계정 ID(Account ID)** 옆 복사 버튼
+
+### 3-C. GitHub 에 열쇠 넣기
+1. https://github.com/kiha797/mozzilab/settings/secrets/actions 접속
+   (저장소 → **Settings(설정)** → 왼쪽 **Secrets and variables(비밀값과 변수)** → **Actions**)
+2. 초록 버튼 **New repository secret(새 비밀값)** 을 눌러 아래 4개를 하나씩 추가
+
+   | Name (이름) — 그대로 복사 | Secret (값) |
+   |---|---|
+   | `CLOUDFLARE_API_TOKEN` | 3-A 에서 복사한 토큰 |
+   | `CLOUDFLARE_ACCOUNT_ID` | 3-B 에서 복사한 계정 ID |
+   | `ADMIN_EMAIL` | 관리자로 쓸 내 이메일 |
+   | `ADMIN_PASSWORD` | 관리자 비밀번호 (8자 이상) |
+
+   (나중에 결제·소셜 로그인을 붙일 때 `TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`, `NAVER_CLIENT_ID` … 도 같은 곳에 넣으면 됩니다)
+
+### 3-D. 배포 실행
+1. https://github.com/kiha797/mozzilab/actions 접속 → 왼쪽 **Cloudflare 배포** → 오른쪽 **Run workflow(실행)** → 초록 **Run workflow**
+2. 1~2분 뒤 초록 ✅ 가 뜨면 완료 → https://mozzilab.labelpos.com
+   - 빨간 ❌ 가 뜨면 눌러서 내용을 캡처해 보내 주세요. (또는 Claude 에게 "배포 확인해줘")
+3. 이후에는 `web` 폴더가 바뀔 때마다 **자동으로** 다시 배포됩니다.
+
+> **준비 조건**: labelpos.com 이 같은 Cloudflare 계정에 **활성(Active)** 상태로 등록되어 있어야 합니다.
+
+---
+
+## 3-1. (다른 방법) Cloudflare 화면에서 직접 연결하기
+
 
 ### 준비물
 - GitHub 계정 · Cloudflare 계정
 - **labelpos.com 이 Cloudflare 에 등록**되어 있어야 합니다
   (Cloudflare 대시보드 첫 화면의 도메인 목록에 `labelpos.com` 이 '활성'으로 보이면 OK)
 
-### 3-1. GitHub 공개 저장소 만들기
+### ① GitHub 공개 저장소 만들기 (완료됨: kiha797/mozzilab)
 1. github.com 로그인 → 오른쪽 위 **[+] → New repository**
 2. Repository name: `mozzilab` / **Public** 선택 / README·.gitignore·license 는 **모두 체크하지 않기**(빈 저장소) → **Create repository**
    > 공개 저장소라도 결제 키·비밀번호는 저장소에 없고 Cloudflare Secret 에만 있으므로 안전합니다.
