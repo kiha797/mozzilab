@@ -1,7 +1,7 @@
 """브랜드 정보와 서버 주소. 웹사이트를 실제 인터넷 주소에 올리면 SERVER_URL 만 바꾸면 된다."""
 import os
 
-BRAND_NAME = "모찌랩"
+BRAND_NAME = "모찌LAB."
 BRAND_NAME_EN = "MozziLab"
 APP_NAME = "모찌캡처"
 APP_ID = "MochiCapture"

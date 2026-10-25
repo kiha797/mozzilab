@@ -80,8 +80,9 @@ class Controller(QObject):
         self.sync_timer = QTimer(self)
         self.sync_timer.timeout.connect(lambda: (self.account.refresh(), self.ads.fetch()))
         self.sync_timer.start(3 * 60 * 60 * 1000)      # 3시간마다 구독 상태·광고 새로 확인
-        # 자동 업데이트: 켜고 8초 뒤 확인 (하루 한 번)
-        self.updater = Updater(self.cfg, on_quit=self.quit)
+        # 자동 업데이트: 켜고 8초 뒤 · 로그인할 때 · 3시간마다 확인하고 묻지 않고 설치
+        # (결과창에서 편집 중이거나 캡처 중이면 끝날 때까지 기다린다)
+        self.updater = Updater(self.cfg, on_quit=self.quit, busy=self._busy)
         QTimer.singleShot(8000, self.updater.check)
         self.launcher = Launcher(self)
         self._setup_tray()
@@ -99,6 +100,14 @@ class Controller(QObject):
         self.ads.fetch()
         if self.editor:
             self.editor.update_account()
+        if self.account.logged_in:
+            self.updater.check()          # 로그인하면 바로 새 버전 확인 → 자동 업데이트
+
+    def _busy(self):
+        app = QApplication.instance()
+        if app.activeModalWidget() or app.activePopupWidget():
+            return True
+        return bool(self.editor and self.editor.isVisible() and self.editor.isActiveWindow())
 
     def login(self, parent=None):
         self.launcher.hide()

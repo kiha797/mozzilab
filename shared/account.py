@@ -258,7 +258,7 @@ class LoginDialog(QDialog):
 
     def _started(self, status, data):
         if status != 200 or "device_code" not in data:
-            self.info.setText("모찌랩 서버에 연결할 수 없어요.\n인터넷 연결을 확인하고 다시 시도해 주세요.")
+            self.info.setText("모찌LAB. 서버에 연결할 수 없어요.\n인터넷 연결을 확인하고 다시 시도해 주세요.")
             self.status.setText(f"서버 주소: {SERVER_URL}")
             self.retry_btn.show()
             return

@@ -146,7 +146,7 @@ def install_mozzi(root, app, version, ui_crate):
         write(toml, s)
 
 
-ATTRIBUTION = ("이 프로그램은 오픈소스 {up}(ArtCraft 팀 · MIT/Apache-2.0)를 바탕으로 모찌랩이 만들었습니다. "
+ATTRIBUTION = ("이 프로그램은 오픈소스 {up}(ArtCraft 팀 · MIT/Apache-2.0)를 바탕으로 모찌LAB.이 만들었습니다. "
                "원본 소스: https://github.com/storytold/{lower}")
 
 
@@ -160,7 +160,7 @@ def apply_photo(root, version):
     edit(root, f"{ui}/src/lib.rs", "            panels::title_bar(self, ui);\n",
          "            panels::title_bar(self, ui);\n"
          "            crate::mozzi::show(ui.ctx());\n"
-         "            crate::mozzi::note_dirty(self.session.active().is_some_and(|d| d.is_dirty()));\n")
+         "            crate::mozzi::note_dirty(self.session.documents().iter().any(|d| d.is_dirty()));\n")
     edit(root, f"{ui}/src/panels.rs", "                    let mut ws = app.ui.workspace.clone();\n",
          "                    crate::mozzi::title_controls(ui);\n                    let mut ws = app.ui.workspace.clone();\n")
     # 도움말 · 시작 화면 링크: 원본 커뮤니티 대신 모찌랩
@@ -173,9 +173,9 @@ def apply_photo(root, version):
          'pub const APP_PAGE: &str = "https://mozzilab.labelpos.com/products/photo";')
     edit(root, links, 'pub const ISSUES: &str = "https://github.com/storytold/photocraft/issues";',
          'pub const ISSUES: &str = "https://mozzilab.labelpos.com/support";')
-    edit(root, links, 'tl!("Join us on Discord")', '"모찌랩 홈페이지"')
+    edit(root, links, 'tl!("Join us on Discord")', '"모찌LAB. 홈페이지"')
     edit(root, links, '(tl!("ArtCraft"), ARTCRAFT_WEBSITE)', '("원본 PhotoCraft 소스", ARTCRAFT_WEBSITE)')
-    edit(root, "crates/engine/src/shell_commands.rs", '"Join the ArtCraft Discord…"', '"모찌랩 홈페이지"')
+    edit(root, "crates/engine/src/shell_commands.rs", '"Join the ArtCraft Discord…"', '"모찌LAB. 홈페이지"')
     edit(root, "crates/engine/src/shell_commands.rs", '"ArtCraft Website"', '"원본 PhotoCraft 소스 (GitHub)"')
     # 정보 창: 모찌 버전 + 원본 출처
     edit(root, f"{ui}/src/dialogs.rs",
@@ -239,7 +239,7 @@ def apply_vector(root, version):
     edit(root, f"{ui}/src/lib.rs", "            chrome::app_bar(self, ui);\n",
          "            chrome::app_bar(self, ui);\n"
          "            crate::mozzi::show(ui.ctx());\n"
-         "            crate::mozzi::note_dirty(self.session.active().is_some_and(|d| d.is_dirty()));\n")
+         "            crate::mozzi::note_dirty(self.session.documents().iter().any(|d| d.is_dirty()));\n")
     # 제목 표시줄 오른쪽: 디스코드 버튼 자리에 모찌랩 [로그인] · 광고
     edit(root, f"{ui}/src/chrome.rs",
          "            if discord {\n                ui.add_space(10.0);\n                crate::community::discord_button(app, ui, false);\n            }\n",
@@ -251,14 +251,14 @@ def apply_vector(root, version):
     edit(root, help_rs, 'pub const WEBSITE_URL: &str = "https://getartcraft.com";',
          'pub const WEBSITE_URL: &str = "https://github.com/storytold/vectorcraft";')
     edit(root, help_rs, '    format!("{WEBSITE_URL}/apps/{APP_ID}")', '    "https://mozzilab.labelpos.com/products/vector".to_string()')
-    for a, b in (('"Join Our Discord"', '"모찌랩 홈페이지"'), ('"ArtCraft Website"', '"원본 VectorCraft 소스 (GitHub)"'),
+    for a, b in (('"Join Our Discord"', '"모찌LAB. 홈페이지"'), ('"ArtCraft Website"', '"원본 VectorCraft 소스 (GitHub)"'),
                  ('"모찌벡터 on getartcraft.com"', '"모찌벡터 소개 페이지"'), ('tl!("ArtCraft website")', '"원본 VectorCraft 소스"'),
-                 ('tl!("Join our Discord")', '"모찌랩 홈페이지"')):
+                 ('tl!("Join our Discord")', '"모찌LAB. 홈페이지"')):
         replace_in_tree(root, ["crates"], a, b)
     com = f"{ui}/src/community.rs"
     edit(root, com, "const DISCORD: Color32 = Color32::from_rgb(0x58, 0x65, 0xF2);",
          "const DISCORD: Color32 = Color32::from_rgb(0xff, 0x6f, 0x91);")
-    edit(root, com, 'tl!("Join the ArtCraft community on Discord (discord.gg/artcraft)")', '"모찌랩 홈페이지 (mozzilab.labelpos.com)"')
+    edit(root, com, 'tl!("Join the ArtCraft community on Discord (discord.gg/artcraft)")', '"모찌LAB. 홈페이지 (mozzilab.labelpos.com)"')
     # 정보 창: 모찌 버전 + 원본 출처
     about = f"{ui}/src/dialogs/about.rs"
     edit(root, about, '&[("version", env!("CARGO_PKG_VERSION"))],',

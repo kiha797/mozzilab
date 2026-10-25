@@ -131,8 +131,9 @@ class MozziWindow(QMainWindow):
         self.sync_timer.timeout.connect(lambda: (self.account.refresh(), self.ads.fetch()))
         self.sync_timer.start(3 * 60 * 60 * 1000)
 
-        # 자동 업데이트: 켜고 8초 뒤 확인 (하루 한 번) + 왼쪽 아래 '업데이트 확인'
-        self.updater = Updater(self.cfg, on_quit=self.close)
+        # 자동 업데이트: 켜고 8초 뒤 · 로그인할 때 · 3시간마다 확인하고 묻지 않고 설치 + 왼쪽 아래 '업데이트 확인'
+        self.updater = Updater(self.cfg, on_quit=self.close,
+                               busy=lambda: bool(self.worker and self.worker.isRunning()))
         QTimer.singleShot(8000, self.updater.check)
         ver = QLabel(f"<a href='#' style='color:#a3979a; text-decoration:none'>v{brand.APP_VERSION} · 업데이트 확인</a>")
         ver.linkActivated.connect(lambda _: self.updater.check(manual=True))
@@ -186,6 +187,8 @@ class MozziWindow(QMainWindow):
     def _account_changed(self):
         self.ads.fetch()
         self.update_account()
+        if self.account.logged_in:
+            self.updater.check()          # 로그인하면 바로 새 버전 확인 → 자동 업데이트
 
     def update_account(self):
         a = self.account

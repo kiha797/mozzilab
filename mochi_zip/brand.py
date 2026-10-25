@@ -1,7 +1,7 @@
 """모찌압축 브랜드 정보"""
 import os
 
-BRAND_NAME = "모찌랩"
+BRAND_NAME = "모찌LAB."
 BRAND_NAME_EN = "MozziLab"
 APP_NAME = "모찌압축"
 APP_ID = "MochiZip"

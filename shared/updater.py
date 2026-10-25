@@ -1,13 +1,13 @@
-"""자동 업데이트 - GitHub 다운로드 페이지(Releases)에서 새 버전을 확인하고, 받아서 조용히 설치한다.
-- 프로그램을 켤 때 하루 한 번 확인 (메뉴의 '업데이트 확인'으로 바로 확인도 가능)
-- 새 버전 설명(릴리스 노트)에 [필수] 가 있으면 '이 버전 건너뛰기'를 없앤다"""
+"""자동 업데이트 - GitHub 다운로드 페이지(Releases)에 새 버전이 올라오면 묻지 않고 받아서 조용히 설치한다.
+- 확인하는 때: 프로그램을 켤 때 · 로그인할 때 · 켜져 있는 동안 3시간마다 · 메뉴의 '업데이트 확인'
+- 작업이 진행 중이면(busy) 끝날 때까지 기다렸다가 설치하고 프로그램을 다시 켠다"""
 import os
 import re
 import sys
 import tempfile
 from datetime import datetime, timedelta
 
-from PySide6.QtCore import QObject, QProcess, Qt, QUrl
+from PySide6.QtCore import QObject, QProcess, Qt, QTimer, QUrl
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from PySide6.QtWidgets import QDialog, QHBoxLayout, QLabel, QMessageBox, QProgressBar, QPushButton, QVBoxLayout
 
@@ -15,7 +15,7 @@ import brand
 from ui import ACCENT, app_icon, mochi_pixmap, px
 
 RELEASE_API = "https://api.github.com/repos/kiha797/mozzilab/releases/latest"
-CHECK_EVERY = timedelta(hours=20)
+CHECK_EVERY = timedelta(hours=3)
 MANDATORY_MARK = "[필수]"
 SILENT_ARGS = ["/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS"]
 
@@ -116,22 +116,28 @@ class UpdateDialog(QDialog):
 
 
 class Updater(QObject):
-    def __init__(self, cfg, on_quit):
+    def __init__(self, cfg, on_quit, busy=None):
         super().__init__()
         self.cfg = cfg
         self.on_quit = on_quit
+        self.busy = busy or (lambda: False)     # 작업 중이면 True → 설치를 미룬다
         self.nam = QNetworkAccessManager(self)
         self.dialog = None
+        self.downloading = False
+        self.ready_path = None
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(lambda: self.check())
+        self.timer.start(int(CHECK_EVERY.total_seconds() * 1000))
+        self.wait_timer = QTimer(self)
+        self.wait_timer.setInterval(20000)
+        self.wait_timer.timeout.connect(self._try_install)
 
     def check(self, manual=False):
-        """새 버전 확인. manual=True 면 하루 한 번 제한 없이 바로 확인하고 결과를 알려 준다."""
-        if not manual:
-            try:
-                last = datetime.fromisoformat(self.cfg.get("update_checked_at") or "")
-                if datetime.now() - last < CHECK_EVERY:
-                    return
-            except ValueError:
-                pass
+        """새 버전 확인. 있으면 알아서 받아서 설치한다. manual=True 면 결과를 창으로 알려 준다."""
+        if self.downloading or self.ready_path:
+            if manual:
+                self._message("새 버전을 준비하는 중이에요. 잠시 뒤 자동으로 설치돼요.")
+            return
         req = QNetworkRequest(QUrl(RELEASE_API))
         req.setRawHeader(b"User-Agent", f"{brand.APP_ID}/{brand.APP_VERSION}".encode())
         req.setRawHeader(b"Accept", b"application/vnd.github+json")
@@ -163,18 +169,70 @@ class Updater(QObject):
         latest = (data.get("tag_name") or "").lstrip("vV")
         if parse_version(latest) <= parse_version(brand.APP_VERSION):
             if manual:
-                self._message(f"지금 최신 버전({brand.APP_VERSION})을 쓰고 있어요. 🍡")
+                self._message(f"지금 최신 버전({brand.APP_VERSION})을 쓰고 있어요.")
             return
         mandatory = MANDATORY_MARK in (data.get("body") or "") or MANDATORY_MARK in (data.get("name") or "")
-        if not manual and not mandatory and self.cfg.get("update_skip") == latest:
-            return
         name = f"{brand.APP_ID}_Setup.exe"
         url = next((a.get("browser_download_url") for a in data.get("assets", []) if a.get("name") == name), None)
         if not url:
             if manual:
                 self._message("새 버전 설치파일을 아직 준비 중이에요. 잠시 뒤 다시 확인해 주세요.")
             return
-        self.dialog = UpdateDialog(self, latest, url, mandatory)
-        self.dialog.show()
-        self.dialog.raise_()
-        self.dialog.activateWindow()
+        if manual:            # 직접 누른 경우: 진행 상황이 보이는 창으로 바로 받기
+            self.dialog = UpdateDialog(self, latest, url, mandatory)
+            self.dialog.show()
+            self.dialog.raise_()
+            self.dialog.activateWindow()
+            self.dialog._download()
+            return
+        self._auto_download(latest, url)
+
+    # ---------- 묻지 않고 받아서 설치 ----------
+    def _auto_download(self, latest, url):
+        self.downloading = True
+        req = QNetworkRequest(QUrl(url))
+        req.setRawHeader(b"User-Agent", f"{brand.APP_ID}/{brand.APP_VERSION}".encode())
+        req.setAttribute(QNetworkRequest.RedirectPolicyAttribute, QNetworkRequest.NoLessSafeRedirectPolicy)
+        reply = self.nam.get(req)
+        reply.finished.connect(lambda: self._auto_downloaded(reply, latest))
+
+    def _auto_downloaded(self, reply, latest):
+        self.downloading = False
+        ok = reply.error() == QNetworkReply.NoError
+        data = bytes(reply.readAll()) if ok else b""
+        reply.deleteLater()
+        if not ok or len(data) < 1024 * 1024:
+            return                      # 다음 확인 때 다시 시도
+        path = os.path.join(tempfile.gettempdir(), f"{brand.APP_ID}_Setup_{latest}.exe")
+        try:
+            with open(path, "wb") as f:
+                f.write(data)
+        except OSError:
+            return
+        self.ready_path = path
+        self.ready_version = latest
+        self._try_install()
+
+    def _try_install(self):
+        if not self.ready_path:
+            return
+        try:
+            busy = self.busy()
+        except Exception:  # noqa: BLE001
+            busy = False
+        if busy:
+            self.wait_timer.start()          # 작업이 끝날 때까지 20초마다 다시 본다
+            return
+        self.wait_timer.stop()
+        try:
+            from toast import show_toast
+            show_toast(f"{brand.APP_NAME} 업데이트", f"새 버전 {self.ready_version} 을 설치하고 곧 다시 켜져요.", msec=4000)
+        except Exception:  # noqa: BLE001
+            pass
+        QTimer.singleShot(4000, self._run_installer)
+
+    def _run_installer(self):
+        if sys.platform != "win32":
+            return
+        if QProcess.startDetached(self.ready_path, SILENT_ARGS):
+            self.on_quit()

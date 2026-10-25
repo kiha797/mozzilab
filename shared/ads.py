@@ -11,9 +11,9 @@ from brand import APP_SLUG, SERVER_URL
 from ui import mochi_pixmap, px
 
 HOUSE_ADS = {
-    "banner": [{"id": None, "title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌랩 광고 제거",
+    "banner": [{"id": None, "title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌LAB. 광고 제거",
                 "bg_color": "#ff6f91", "button_text": "자세히 알아보기", "image_url": "", "weight": 1}],
-    "popup": [{"id": None, "title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌랩 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!",
+    "popup": [{"id": None, "title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌LAB. 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!",
                "bg_color": "#ff8fab", "button_text": "광고 없이 쓰기", "image_url": "", "weight": 1}],
 }
 

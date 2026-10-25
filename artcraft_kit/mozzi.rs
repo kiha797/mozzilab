@@ -23,7 +23,8 @@ pub const SERVER: &str = "https://mozzilab.labelpos.com";
 const RELEASE_API: &str = "https://api.github.com/repos/kiha797/mozzilab/releases/latest";
 const ACCENT: Color32 = Color32::from_rgb(0xff, 0x6f, 0x91);
 const OFFLINE_GRACE_SECS: u64 = 7 * 24 * 3600;
-const UPDATE_EVERY_SECS: u64 = 20 * 3600;
+/// 켜져 있는 동안 새 버전을 확인하는 간격
+const UPDATE_EVERY: Duration = Duration::from_secs(3 * 3600);
 
 fn now() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
@@ -155,6 +156,10 @@ struct Update {
     downloading: bool,
     progress: f32,
     error: String,
+    /// 다 받은 설치파일 (저장 안 된 문서가 없으면 바로 설치)
+    ready: Option<PathBuf>,
+    /// 설치까지 남은 시간 (알림을 잠깐 보여 준 뒤 설치)
+    install_at: Option<Instant>,
 }
 
 struct State {
@@ -176,13 +181,15 @@ struct State {
     quit: bool,
     auto_checked: bool,
     refresh_needed: bool,
+    last_update_check: Instant,
+    checking: bool,
 }
 
 fn house_ads() -> Value {
     json!({
         "show_ads": true, "popup_every": 1, "pricing_url": format!("{SERVER}/pricing"),
-        "banner": [{"title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌랩 광고 제거", "bg_color": "#ff6f91", "button_text": "자세히 알아보기"}],
-        "popup": [{"title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌랩 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!", "bg_color": "#ff8fab", "button_text": "광고 없이 쓰기"}],
+        "banner": [{"title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌LAB. 광고 제거", "bg_color": "#ff6f91", "button_text": "자세히 알아보기"}],
+        "popup": [{"title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌LAB. 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!", "bg_color": "#ff8fab", "button_text": "광고 없이 쓰기"}],
     })
 }
 
@@ -222,6 +229,8 @@ impl State {
             quit: false,
             auto_checked: false,
             refresh_needed: false,
+            last_update_check: Instant::now(),
+            checking: false,
         }
     }
 
@@ -289,13 +298,14 @@ impl State {
         self.refresh();
     }
 
+    /// 새 버전 확인 → 있으면 알아서 받아서 설치한다 (켤 때 · 로그인할 때 · 3시간마다)
     fn check_update(&mut self, manual: bool) {
         self.manual_check = manual;
-        if !manual {
-            if now().saturating_sub(self.cfg["update_checked_at"].as_u64().unwrap_or(0)) < UPDATE_EVERY_SECS {
-                return;
-            }
+        if self.checking || self.update.as_ref().is_some_and(|u| u.downloading || u.ready.is_some()) {
+            return;
         }
+        self.checking = true;
+        self.last_update_check = Instant::now();
         spawn(&self.tx, move || {
             let (c, v) = request("GET", RELEASE_API, None, None);
             Msg::Release(manual, c, v)
@@ -342,7 +352,7 @@ impl State {
                 open_url(&l.verify_url);
             }
             Msg::DeviceStart(..) => {
-                self.login.info = format!("모찌랩 서버에 연결할 수 없어요.\n인터넷 연결을 확인하고 다시 시도해 주세요.\n({SERVER})");
+                self.login.info = format!("모찌LAB. 서버에 연결할 수 없어요.\n인터넷 연결을 확인하고 다시 시도해 주세요.\n({SERVER})");
                 self.login.failed = true;
             }
             Msg::DevicePoll(_, v) => {
@@ -356,6 +366,7 @@ impl State {
                         self.login.open = false;
                         self.info_msg = Some("로그인했어요! 계정 정보를 불러오는 중이에요.".into());
                         self.refresh();
+                        self.check_update(false);
                     }
                     "expired" | "denied" | "invalid" | "used" => {
                         self.login.info = "시간이 지났거나 연결이 거절되었어요. [다시 시도]를 눌러 주세요.".into();
@@ -366,6 +377,7 @@ impl State {
                 }
             }
             Msg::Release(manual, code, v) => {
+                self.checking = false;
                 self.cfg["update_checked_at"] = json!(now());
                 self.save();
                 if code != 200 {
@@ -387,10 +399,9 @@ impl State {
                     }
                     return;
                 }
-                if !manual && !mandatory && self.cfg["update_skip"].as_str() == Some(tag.as_str()) {
-                    return;
-                }
-                self.update = Some(Update { tag, notes, url, mandatory, downloading: false, progress: 0.0, error: String::new() });
+                // 묻지 않고 바로 받는다. 다 받으면 저장 안 된 작업이 없을 때 설치하고 다시 켠다.
+                self.update = Some(Update { tag, notes, url, mandatory, downloading: false, progress: 0.0, error: String::new(), ready: None, install_at: None });
+                self.download();
             }
             Msg::Progress(p) => {
                 if let Some(u) = &mut self.update {
@@ -398,21 +409,30 @@ impl State {
                 }
             }
             Msg::Downloaded(Ok(path)) => {
-                let r = std::process::Command::new(&path).args(["/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS"]).spawn();
-                match r {
-                    Ok(_) => self.quit = true,
-                    Err(e) => {
-                        if let Some(u) = &mut self.update {
-                            u.downloading = false;
-                            u.error = format!("설치 프로그램을 실행하지 못했어요: {e}");
-                        }
-                    }
+                if let Some(u) = &mut self.update {
+                    u.downloading = false;
+                    u.ready = Some(path);
                 }
             }
             Msg::Downloaded(Err(e)) => {
                 if let Some(u) = &mut self.update {
                     u.downloading = false;
                     u.error = e;
+                }
+            }
+        }
+    }
+
+    fn install(&mut self) {
+        let Some(path) = self.update.as_ref().and_then(|u| u.ready.clone()) else { return };
+        let r = std::process::Command::new(&path).args(["/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS"]).spawn();
+        match r {
+            Ok(_) => self.quit = true,
+            Err(e) => {
+                if let Some(u) = &mut self.update {
+                    u.ready = None;
+                    u.install_at = None;
+                    u.error = format!("설치 프로그램을 실행하지 못했어요: {e}");
                 }
             }
         }
@@ -514,7 +534,7 @@ pub fn title_controls(ui: &mut egui::Ui) {
                 }
             });
         } else {
-            let r = ui.add(btn).on_hover_text("모찌랩 계정으로 로그인 · 모찌 플러스 구독자는 광고 없이 사용");
+            let r = ui.add(btn).on_hover_text("모찌LAB. 계정으로 로그인 · 모찌 플러스 구독자는 광고 없이 사용");
             if r.clicked() {
                 s.start_login();
             }
@@ -605,6 +625,23 @@ pub fn show(ctx: &Context) {
             s.auto_checked = true;
             s.check_update(false);
         }
+        if s.auto_checked && s.last_update_check.elapsed() > UPDATE_EVERY {
+            s.check_update(false);
+        }
+        // 다 받았으면: 저장 안 된 문서가 없을 때 5초 알림 뒤 설치 (있으면 저장할 때까지 기다린다)
+        let dirty = s.was_dirty;
+        if let Some(u) = &mut s.update {
+            if u.ready.is_some() {
+                if dirty {
+                    u.install_at = None;
+                } else if u.install_at.is_none() {
+                    u.install_at = Some(Instant::now() + Duration::from_secs(5));
+                }
+            }
+        }
+        if s.update.as_ref().and_then(|u| u.install_at).is_some_and(|t| Instant::now() >= t) {
+            s.install();
+        }
         if s.last_sync.elapsed() > Duration::from_secs(3 * 3600) {
             s.last_sync = Instant::now();
             s.refresh();
@@ -652,10 +689,10 @@ pub fn show(ctx: &Context) {
 
 fn login_window(ctx: &Context, s: &mut State) {
     let mut open = true;
-    egui::Window::new("모찌랩 로그인").collapsible(false).resizable(false).anchor(Align2::CENTER_CENTER, [0.0, 0.0]).open(&mut open).show(ctx, |ui| {
+    egui::Window::new("모찌LAB. 로그인").collapsible(false).resizable(false).anchor(Align2::CENTER_CENTER, [0.0, 0.0]).open(&mut open).show(ctx, |ui| {
         ui.set_width(360.0);
         ui.vertical_centered(|ui| {
-            ui.label(RichText::new("모찌랩 계정 연결").size(17.0).strong().color(ACCENT));
+            ui.label(RichText::new("모찌LAB. 계정 연결").size(17.0).strong().color(ACCENT));
             ui.add_space(8.0);
             ui.label(&s.login.info);
             if !s.login.user_code.is_empty() && !s.login.failed {
@@ -709,49 +746,46 @@ fn popup_ad(ctx: &Context, s: &mut State) {
     });
 }
 
+/// 오른쪽 아래 작은 업데이트 알림 (작업을 막지 않는다)
 fn update_window(ctx: &Context, s: &mut State) {
+    let mut now_install = false;
     let mut close = false;
-    let mut start = false;
-    if let Some(u) = &s.update {
-        egui::Window::new("새 버전이 나왔어요").collapsible(false).resizable(false).anchor(Align2::CENTER_CENTER, [0.0, 0.0]).show(ctx, |ui| {
-            ui.set_width(380.0);
-            ui.label(RichText::new(format!("{APP_NAME} v{} (지금 v{VERSION})", u.tag)).size(15.0).strong());
-            if u.mandatory {
-                ui.colored_label(ACCENT, "꼭 필요한 업데이트예요.");
-            }
-            let notes: String = u.notes.lines().take(12).collect::<Vec<_>>().join("\n");
-            if !notes.is_empty() {
-                egui::ScrollArea::vertical().max_height(160.0).show(ui, |ui| ui.weak(notes));
-            }
+    let dirty = s.was_dirty;
+    let Some(u) = &s.update else { return };
+    if u.ready.is_none() && !u.downloading && u.error.is_empty() {
+        return;
+    }
+    egui::Area::new(egui::Id::new("mozzi-update")).anchor(Align2::RIGHT_BOTTOM, [-16.0, -36.0]).order(egui::Order::Foreground).show(ctx, |ui| {
+        egui::Frame::new().fill(Color32::WHITE).stroke(Stroke::new(1.0, ACCENT)).corner_radius(CornerRadius::same(10)).inner_margin(12.0).show(ui, |ui| {
+            ui.set_width(300.0);
+            ui.label(RichText::new(format!("{APP_NAME} 새 버전 v{}", u.tag)).strong().color(Color32::from_rgb(0x3b, 0x2f, 0x2f)));
+            let dark = Color32::from_gray(80);
             if !u.error.is_empty() {
                 ui.colored_label(Color32::from_rgb(0xe5, 0x48, 0x4d), &u.error);
-            }
-            ui.add_space(8.0);
-            if u.downloading {
-                ui.add(egui::ProgressBar::new(u.progress).show_percentage().text("내려받는 중… 끝나면 자동으로 설치하고 다시 켜져요"));
-            } else {
-                ui.horizontal(|ui| {
-                    if ui.add(egui::Button::new(RichText::new("지금 업데이트").color(Color32::WHITE).strong()).fill(ACCENT)).clicked() {
-                        start = true;
-                    }
-                    if !u.mandatory {
-                        if ui.button("나중에").clicked() {
-                            close = true;
-                        }
-                        if ui.button("이 버전 건너뛰기").clicked() {
-                            s.cfg["update_skip"] = json!(u.tag);
-                            close = true;
-                        }
-                    }
-                });
+                if ui.button("닫기").clicked() {
+                    close = true;
+                }
+            } else if u.downloading {
+                ui.label(RichText::new("새 버전을 내려받는 중이에요. 계속 작업하셔도 돼요.").color(dark));
+                ui.add(egui::ProgressBar::new(u.progress).show_percentage());
+            } else if let Some(t) = u.install_at {
+                let left = t.saturating_duration_since(Instant::now()).as_secs() + 1;
+                ui.label(RichText::new(format!("{left}초 뒤 업데이트를 설치하고 다시 켜요.")).color(dark));
+                if ui.add(egui::Button::new(RichText::new("지금 설치").color(Color32::WHITE)).fill(ACCENT)).clicked() {
+                    now_install = true;
+                }
+            } else if dirty {
+                ui.label(RichText::new("저장하지 않은 문서가 있어요.\n저장하면(또는 닫으면) 자동으로 업데이트돼요.").color(dark));
+                if ui.button("저장하지 않고 지금 설치").on_hover_text("저장 안 된 내용은 사라져요").clicked() {
+                    now_install = true;
+                }
             }
         });
-    }
-    if start {
-        s.download();
+    });
+    if now_install {
+        s.install();
     }
     if close {
-        s.save();
         s.update = None;
     }
 }
