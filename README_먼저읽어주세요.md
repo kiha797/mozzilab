@@ -21,7 +21,7 @@
 
 ---
 
-## 2. 폴더 구성 (GitHub 비공개 저장소 하나에 모두 들어갑니다)
+## 2. 폴더 구성 (GitHub 공개 저장소 `mozzilab` 하나에 모두 들어갑니다)
 
 ```
 MozziLab/
@@ -51,12 +51,13 @@ MozziLab/
 - **labelpos.com 이 Cloudflare 에 등록**되어 있어야 합니다
   (Cloudflare 대시보드 첫 화면의 도메인 목록에 `labelpos.com` 이 '활성'으로 보이면 OK)
 
-### 3-1. GitHub 비공개 저장소 만들기
+### 3-1. GitHub 공개 저장소 만들기
 1. github.com 로그인 → 오른쪽 위 **[+] → New repository**
-2. Repository name: `mozzilab` / **Private** 선택 / 나머지는 그대로 → **Create repository**
+2. Repository name: `mozzilab` / **Public** 선택 / README·.gitignore·license 는 **모두 체크하지 않기**(빈 저장소) → **Create repository**
+   > 공개 저장소라도 결제 키·비밀번호는 저장소에 없고 Cloudflare Secret 에만 있으므로 안전합니다.
 3. 이 코드를 올리는 방법은 둘 중 하나:
    - **(쉬움) Claude 에게 맡기기**: https://claude.ai/connect-github 에서 GitHub 을 연결하고, Claude GitHub App 을 `mozzilab` 저장소에 설치한 뒤 Claude 에게 "mozzilab 저장소에 올려줘"라고 말하기
-   - **(직접)** GitHub Desktop 을 설치 → File → Add local repository → `MozziLab` 폴더 선택 → Publish (Private)
+   - **(직접)** GitHub Desktop 을 설치 → File → Add local repository → `MozziLab` 폴더 선택 → Publish
 
 ### 3-2. 데이터베이스(D1) 만들기
 1. Cloudflare 대시보드 → 왼쪽 **Storage & Databases → D1 SQL Database → Create**
@@ -140,10 +141,11 @@ GitHub 에 코드를 올리면(커밋) Cloudflare 가 **자동으로 다시 배�
 ## 6. PC 프로그램 배포
 1. `mochi_capture/brand.py` 의 주소가 `https://mozzilab.labelpos.com` 인지 확인 (이미 설정됨)
 2. `3_build_exe.bat` → `installer.iss` 컴파일 → `MochiCapture_Setup_1.0.0.exe`
-3. 설치파일 올리는 곳: GitHub 저장소 → **Releases → Draft a new release** → 파일 첨부 → Publish
-   - ⚠️ 저장소가 **비공개**라 Releases 파일도 외부 사람이 받을 수 없습니다.
-     **공개용 저장소를 따로 만들어** (예: `mozzilab-download`, Public) 그곳 Releases 에 설치파일만 올리세요.
-   - 또는 Cloudflare R2(파일 저장소)에 올리고 공개 링크를 사용
+3. 설치파일 올리는 곳: GitHub `mozzilab` 저장소 → **Releases → Draft a new release**
+   → Tag 에 `v1.0.0` 입력 → `MochiCapture_Setup_1.0.0.exe` 파일을 끌어다 놓기 → **Publish release**
+   - 공개 저장소라 누구나 내려받을 수 있습니다.
+   - 올린 파일 이름을 마우스 오른쪽 클릭 → **링크 주소 복사**
+     (예: `https://github.com/kiha797/mozzilab/releases/download/v1.0.0/MochiCapture_Setup_1.0.0.exe`)
 4. 관리자 → 제품 관리 → 모찌캡처 → **다운로드 주소**에 링크 붙여넣기 → 저장
 
 ---
