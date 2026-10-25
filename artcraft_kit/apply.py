@@ -26,6 +26,9 @@ APPS = {
 }
 
 
+BYTE_STR = re.compile(r'(?<![A-Za-z0-9_])br?#*"')   # b"..." · br"..." (GitHub" 같은 글자는 아님)
+
+
 class ApplyError(Exception):
     pass
 
@@ -75,7 +78,7 @@ def rename_everywhere(root, app):
                     continue
                 s = read(p)
                 # 바이트 문자열(b"...")에는 한글을 넣을 수 없으니 그런 줄은 그대로 둔다
-                t = "".join(ln if 'b"' in ln else word.sub(name, ln) for ln in s.splitlines(keepends=True))
+                t = "".join(ln if BYTE_STR.search(ln) else word.sub(name, ln) for ln in s.splitlines(keepends=True))
                 if t != s:
                     write(p, t)
                     changed += 1
