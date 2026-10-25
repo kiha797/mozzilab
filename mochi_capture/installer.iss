@@ -1,7 +1,9 @@
 ﻿; 모찌캡처 설치 프로그램 만들기 (Inno Setup 6 용)
 ; 사용법: 3_build_exe.bat 실행 후, 이 파일을 Inno Setup 으로 열고 [Build] > [Compile]
 #define MyAppName "모찌캡처"
-#define MyAppVersion "1.0.0"
+#ifndef MyAppVersion
+  #define MyAppVersion "1.0.0"
+#endif
 #define MyAppPublisher "모찌랩 (MozziLab)"
 #define MyAppExeName "MochiCapture.exe"
 
@@ -10,10 +12,11 @@ AppId={{6E2B1C3A-4D5F-4A8B-9C1D-MOCHICAPTURE01}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 AppPublisher={#MyAppPublisher}
+AppPublisherURL=https://mozzilab.labelpos.com
 DefaultDirName={autopf}\MochiCapture
 DefaultGroupName={#MyAppName}
 OutputDir=installer_output
-OutputBaseFilename=MochiCapture_Setup_{#MyAppVersion}
+OutputBaseFilename=MochiCapture_Setup
 SetupIconFile=assets\app.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2

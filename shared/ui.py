@@ -61,6 +61,26 @@ ICONS = {
     "sliders": '<path d="M3 7h8M15 7h6M3 17h4M11 17h10"/><circle cx="13" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>',
     "hotkey": '<rect x="4" y="4" width="16" height="16"/><path d="M9 15l6-6M10 9h5v5"/>',
     "help": '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01" stroke-width="2.2"/>',
+    "file": '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+    "add": '<path d="M12 5v14M5 12h14"/>',
+    "trash": '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+    "up": '<path d="M12 19V5M6 11l6-6 6 6"/>',
+    "down": '<path d="M12 5v14M6 13l6 6 6-6"/>',
+    "sort": '<path d="M7 4v16M3 16l4 4 4-4M14 6h7M14 12h5M14 18h3"/>',
+    "home": '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    "merge": '<rect x="3" y="3" width="8" height="10" rx="1"/><rect x="13" y="3" width="8" height="10" rx="1"/><path d="M7 13v3h10v-3M12 16v5M9 19l3 2 3-2"/>',
+    "split": '<rect x="7" y="3" width="10" height="8" rx="1"/><path d="M12 11v3M7 14h10M7 14v3M17 14v3"/><rect x="3" y="17" width="8" height="4" rx="1"/><rect x="13" y="17" width="8" height="4" rx="1"/>',
+    "pages": '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="9" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    "img2pdf": '<rect x="3" y="4" width="10" height="9" rx="1"/><circle cx="6.5" cy="7.5" r="1.2"/><path d="M13 11l-3-3-5 5"/><path d="M15 9h2l4 4v8H11v-5"/><path d="M14 17h4"/>',
+    "pdf2img": '<path d="M4 3h7l3 3v9H4z"/><path d="M7 9h4M7 12h3"/><rect x="12" y="13" width="9" height="8" rx="1"/><path d="M21 19l-3-3-4 4"/>',
+    "compress": '<path d="M6 3h8l4 4v14H6z"/><path d="M12 8v4M9.5 10.5L12 13l2.5-2.5M12 18v-3M9.5 15.5L12 13"/>',
+    "lock": '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><path d="M12 15v2"/>',
+    "rotl": '<path d="M4 4v5h5"/><path d="M4.5 9A8 8 0 1 1 6 17"/>',
+    "rotr": '<path d="M20 4v5h-5"/><path d="M19.5 9A8 8 0 1 0 18 17"/>',
+    "zipnew": '<path d="M6 3h12v18H6z"/><path d="M11 3v2h2v2h-2v2h2v2h-2"/><rect x="10" y="13" width="4" height="4" rx="1"/>',
+    "zipopen": '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M12 10v2h1v2h-1v2"/>',
+    "extract": '<path d="M5 3h10l4 4v6"/><path d="M5 3v18h7"/><path d="M18 15v6M15 18l3 3 3-3"/>',
+    "folderadd": '<path d="M3 6a1 1 0 0 1 1-1h5l2 2h9a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z"/><path d="M12 10v6M9 13h6"/>',
     "exit": '<path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/>',
 }
 
@@ -124,9 +144,15 @@ def mochi_pixmap(width):
 
 
 def app_icon():
+    """프로그램 아이콘. 각 프로그램의 brand.py 에 APP_SVG 가 있으면 그것을 쓴다."""
+    try:
+        import brand
+        svg = getattr(brand, "APP_SVG", None) or APP_SVG
+    except ImportError:
+        svg = APP_SVG
     ic = QIcon()
     for size in (16, 24, 32, 48, 64, 128, 256):
-        ic.addPixmap(_render(APP_SVG, size))
+        ic.addPixmap(_render(svg, size))
     return ic
 
 

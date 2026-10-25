@@ -148,9 +148,14 @@ async function seed(env: Env) {
     const ins = "INSERT INTO products (slug, name, sort, status, version, color, tagline, description, download_url) VALUES (?,?,?,?,?,?,?,?,?)";
     await env.DB.batch([
       env.DB.prepare(ins).bind("capture", "모찌캡처", 1, "released", "1.0.0", "#ff6f91", "클릭 한 번으로 쏙! 말랑한 화면 캡처",
-        "직접지정 · 창 · 단위영역 · 전체화면 · 스크롤 · 크기지정 캡처와 도형·펜·모자이크 편집까지 한 번에.", env.CAPTURE_DOWNLOAD_URL || ""),
-      env.DB.prepare(ins).bind("pdf", "모찌PDF", 2, "coming", "0.0.0", "#7ec8a9", "PDF 변환·합치기·나누기를 말랑하게", "곧 출시됩니다.", ""),
-      env.DB.prepare(ins).bind("zip", "모찌압축", 3, "coming", "0.0.0", "#ffb86b", "꾹 눌러 담는 압축 프로그램", "곧 출시됩니다.", ""),
+        "직접지정 · 창 · 단위영역 · 전체화면 · 스크롤 · 크기지정 캡처와 도형·펜·모자이크 편집까지 한 번에.",
+        env.CAPTURE_DOWNLOAD_URL || "https://github.com/kiha797/mozzilab/releases/latest/download/MochiCapture_Setup.exe"),
+      env.DB.prepare(ins).bind("pdf", "모찌PDF", 2, "released", "1.0.0", "#7ec8a9", "PDF 변환·합치기·나누기를 말랑하게",
+        "합치기 · 나누기 · 페이지 회전/삭제/순서 바꾸기 · 이미지→PDF · PDF→이미지 · 용량 줄이기 · 암호 걸기/풀기.",
+        "https://github.com/kiha797/mozzilab/releases/latest/download/MochiPDF_Setup.exe"),
+      env.DB.prepare(ins).bind("zip", "모찌압축", 3, "released", "1.0.0", "#ffb86b", "꾹 눌러 담는 압축 프로그램",
+        "ZIP · 7Z 압축하기/풀기 · TAR 풀기 · 암호(AES-256) · 한글 이름 깨진 ZIP 복구 · 마우스 오른쪽 메뉴로 바로 풀기.",
+        "https://github.com/kiha797/mozzilab/releases/latest/download/MochiZip_Setup.exe"),
     ]);
   }
   const ac = await env.DB.prepare("SELECT COUNT(*) AS n FROM ads").first<{ n: number }>();

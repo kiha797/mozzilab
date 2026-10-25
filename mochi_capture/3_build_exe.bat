@@ -7,7 +7,7 @@ if not exist venv\Scripts\python.exe (
   exit /b 1
 )
 echo 모찌캡처 실행파일(exe)을 만드는 중입니다. 1~3분 정도 걸립니다...
-venv\Scripts\pyinstaller --noconfirm --clean --windowed --name MochiCapture --icon assets\app.ico --add-data "assets;assets" main.py
+venv\Scripts\pyinstaller --noconfirm --clean --windowed --name MochiCapture --icon assets\app.ico --paths ..\shared --add-data "assets;assets" main.py
 if not %errorlevel%==0 (
   echo [오류] exe 만들기에 실패했습니다. 위의 빨간 메시지를 확인하세요.
   pause

@@ -1,0 +1,116 @@
+# 모찌랩 설치파일 자동 만들기
+# GitHub 의 Windows 컴퓨터에서 모찌캡처 · 모찌PDF · 모찌압축 설치파일(Setup.exe)을 만들고
+# 저장소의 [Releases] (다운로드 페이지)에 올립니다.
+# 실행: 저장소 > Actions > "설치파일 만들기" > Run workflow (버전 입력)
+name: 설치파일 만들기
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "버전 (예: 1.0.0)"
+        required: true
+        default: "1.0.0"
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { dir: mochi_capture, exe: MochiCapture, name: 모찌캡처, extra: "" }
+          - { dir: mochi_pdf, exe: MochiPDF, name: 모찌PDF, extra: "--collect-all pypdfium2 --collect-all pypdfium2_raw" }
+          - { dir: mochi_zip, exe: MochiZip, name: 모찌압축, extra: "--collect-submodules py7zr" }
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: ${{ matrix.dir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 버전 정하기
+        id: ver
+        run: |
+          $v = "${{ github.event.inputs.version }}"
+          if (-not $v) { $v = "${{ github.ref_name }}".TrimStart("v") }
+          "version=$v" >> $env:GITHUB_OUTPUT
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 필요한 프로그램 설치
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pyinstaller
+
+      - name: 버전 번호 넣기
+        run: |
+          (Get-Content brand.py -Encoding utf8) -replace 'APP_VERSION = ".*"', 'APP_VERSION = "${{ steps.ver.outputs.version }}"' | Set-Content brand.py -Encoding utf8
+
+      - name: 실행파일(exe) 만들기
+        run: |
+          pyinstaller --noconfirm --clean --windowed --name ${{ matrix.exe }} --icon assets\app.ico --paths ..\shared --add-data "assets;assets" ${{ matrix.extra }} main.py
+
+      - name: 실행 점검 (selftest)
+        run: |
+          $p = Start-Process -FilePath "dist\${{ matrix.exe }}\${{ matrix.exe }}.exe" -ArgumentList "--selftest" -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "${{ matrix.name }} 실행 점검 실패 (종료 코드 $($p.ExitCode))" }
+          Write-Host "${{ matrix.name }} 실행 점검 통과"
+
+      - name: Inno Setup 준비
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+
+      - name: 설치파일(Setup.exe) 만들기
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss
+          Get-ChildItem installer_output
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.exe }}
+          path: ${{ matrix.dir }}/installer_output/${{ matrix.exe }}_Setup.exe
+          if-no-files-found: error
+
+  release:
+    name: 다운로드 페이지에 올리기
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - name: 버전 정하기
+        id: ver
+        run: |
+          v="${{ github.event.inputs.version }}"
+          [ -z "$v" ] && v="${GITHUB_REF_NAME#v}"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: 모찌랩 v${{ steps.ver.outputs.version }}
+          make_latest: "true"
+          body: |
+            ## 🍡 모찌랩 프로그램 v${{ steps.ver.outputs.version }}
+            | 프로그램 | 설치파일 |
+            |---|---|
+            | 📸 모찌캡처 | `MochiCapture_Setup.exe` |
+            | 📄 모찌PDF | `MochiPDF_Setup.exe` |
+            | 🗜️ 모찌압축 | `MochiZip_Setup.exe` |
+
+            Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 광고 없이 쓰기: https://mozzilab.labelpos.com/pricing
+          files: out/*.exe

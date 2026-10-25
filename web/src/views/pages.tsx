@@ -238,7 +238,7 @@ export const MyPage = ({ c, user, sub, lastSub, devices, payments }: {
         </div>
       </div>
       <div class="panel">
-        <h2>💻 내 PC 기기 <Badge>{devices.length} / {c.s.device_limit}대</Badge></h2>
+        <h2>💻 내 PC 기기 <Badge>{new Set(devices.map((d) => d.device_id)).size} / {c.s.device_limit}대</Badge></h2>
         <p class="small muted">모찌캡처에서 [로그인]한 PC 목록입니다. 쓰지 않는 PC는 해제하세요.</p>
         <table class="table">
           <tr><th>PC 이름</th><th>프로그램</th><th>연결일</th><th>마지막 사용</th><th></th></tr>

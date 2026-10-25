@@ -16,6 +16,29 @@ from ui import ACCENT, app_icon, mochi_pixmap, px
 OFFLINE_GRACE_DAYS = 7      # 인터넷이 안 될 때도 마지막 확인 후 7일 동안은 구독 상태 유지
 
 
+def shared_device_id():
+    """이 PC 고유번호. 모찌캡처·모찌PDF·모찌압축이 함께 쓴다. (%APPDATA%\\MozziLab\\device.json)"""
+    import os
+    base = os.environ.get("APPDATA") or os.path.join(os.path.expanduser("~"), ".config")
+    folder = os.path.join(base, "MozziLab")
+    path = os.path.join(folder, "device.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            did = json.load(f).get("device_id")
+            if did:
+                return did
+    except (OSError, ValueError):
+        pass
+    did = uuid.uuid4().hex
+    try:
+        os.makedirs(folder, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({"device_id": did}, f)
+    except OSError:
+        pass
+    return did
+
+
 class Api(QObject):
     """서버와 통신 (화면이 멈추지 않도록 비동기로 동작)"""
 
@@ -77,8 +100,9 @@ class Account(QObject):
         super().__init__()
         self.cfg = cfg
         self.api = api
-        if not cfg.get("device_id"):
-            cfg["device_id"] = uuid.uuid4().hex
+        shared_id = shared_device_id()
+        if cfg.get("device_id") != shared_id:
+            cfg["device_id"] = shared_id          # 모찌랩 프로그램끼리 같은 PC 번호를 씀 (PC 1대 = 1대로 계산)
             cfg.save()
 
     # ---------- 상태 ----------

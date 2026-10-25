@@ -3,6 +3,9 @@
 import os
 import sys
 
+# 모찌랩 프로그램들이 함께 쓰는 코드(로그인·광고·디자인)는 ../shared 폴더에 있다
+sys.path.insert(1, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "shared"))
+
 # 화면 배율(125%, 150%)에서도 캡처 좌표가 정확하도록 실제 픽셀 기준으로 동작
 os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "0")
 
@@ -357,7 +360,21 @@ class Controller(QObject):
         self.app.quit()
 
 
+def selftest():
+    """설치파일이 제대로 만들어졌는지 점검 (GitHub 자동 빌드에서 사용): 성공하면 0"""
+    import numpy  # noqa: F401
+    app = QApplication.instance() or QApplication(sys.argv)
+    img, _ = capture.grab_virtual()
+    from editor import Canvas  # noqa: F401
+    from scroll_capture import find_offset  # noqa: F401
+    Launcher  # noqa: B018
+    return 0
+
+
 def main():
+    if "--selftest" in sys.argv:
+        os.environ["QT_QPA_PLATFORM"] = "offscreen"
+        return selftest()
     winapi.set_app_id(APP_ID)
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)

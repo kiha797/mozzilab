@@ -39,4 +39,4 @@ crons = ["0 0 * * *"]
 SITE_URL = "https://mozzilab.labelpos.com"
 COMPANY_NAME = "모찌랩"
 SUPPORT_EMAIL = "help@labelpos.com"
-CAPTURE_DOWNLOAD_URL = "https://github.com/kiha797/mozzilab/releases/download/v1.0.0/MochiCapture_Setup_1.0.0.exe"
+CAPTURE_DOWNLOAD_URL = "https://github.com/kiha797/mozzilab/releases/latest/download/MochiCapture_Setup.exe"

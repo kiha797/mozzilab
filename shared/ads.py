@@ -13,7 +13,7 @@ from ui import mochi_pixmap, px
 HOUSE_ADS = {
     "banner": [{"id": None, "title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌랩 광고 제거",
                 "bg_color": "#ff6f91", "button_text": "자세히 알아보기", "image_url": "", "weight": 1}],
-    "popup": [{"id": None, "title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 광고 없이 캡처하세요.\n언제든 해지할 수 있어요!",
+    "popup": [{"id": None, "title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌랩 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!",
                "bg_color": "#ff8fab", "button_text": "광고 없이 쓰기", "image_url": "", "weight": 1}],
 }
 
@@ -147,8 +147,8 @@ class AdCard(QWidget):
             if self.big:
                 p.drawText(QRectF(tx, ty + px(16), tw, title_h), Qt.TextWordWrap, self.ad.get("title", ""))
             else:
-                p.drawText(QRectF(tx, px(14), tw, self.height() / 2), Qt.AlignLeft | Qt.AlignVCenter | Qt.TextWordWrap,
-                           self.ad.get("title", ""))
+                title = p.fontMetrics().elidedText(self.ad.get("title", ""), Qt.ElideRight, int(tw))
+                p.drawText(QRectF(tx, px(14), tw, self.height() / 2), Qt.AlignLeft | Qt.AlignVCenter, title)
             f.setBold(False)
             f.setPointSizeF(10.5 if self.big else 9)
             p.setFont(f)

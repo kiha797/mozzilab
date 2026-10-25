@@ -218,7 +218,7 @@ def launch_command():
         return f'"{sys.executable}" --hidden'
     exe = sys.executable
     pyw = exe[:-10] + "pythonw.exe" if exe.lower().endswith("python.exe") else exe
-    main = os.path.abspath(os.path.join(os.path.dirname(__file__), "main.py"))
+    main = os.path.abspath(sys.argv[0])          # 지금 실행 중인 프로그램의 main.py
     return f'"{pyw}" "{main}" --hidden'
 
 

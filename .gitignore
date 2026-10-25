@@ -10,12 +10,12 @@ web/node_modules/
 web/.wrangler/
 web/.dev.vars
 
-# PC 프로그램 빌드 결과
-mochi_capture/venv/
-mochi_capture/build/
-mochi_capture/dist/
-mochi_capture/installer_output/
-mochi_capture/*.spec
+# PC 프로그램 빌드 결과 (모찌캡처·모찌PDF·모찌압축)
+*/venv/
+*/build/
+*/dist/
+*/installer_output/
+*.spec
 
 # 맨 위 폴더 설치 결과
 node_modules/

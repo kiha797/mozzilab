@@ -242,7 +242,9 @@ site.post("/device", async (c) => {
   const limit = Number(c.get("settings").device_limit);
   const devices = await activeDevices(c.env, user.id);
   const same = devices.filter((d) => d.device_id === dc.device_id && d.app === dc.app);
-  if (!same.length && devices.length >= limit)
+  // 같은 PC 에서 모찌캡처·모찌PDF·모찌압축을 함께 써도 PC 1대로 계산
+  const pcs = new Set(devices.map((d) => d.device_id));
+  if (!pcs.has(dc.device_id) && pcs.size >= limit)
     return flashRedirect(c, "error", `PC는 최대 ${limit}대까지 연결할 수 있습니다. 아래 '내 PC 기기'에서 쓰지 않는 PC를 해제해 주세요.`, "/mypage");
   const token = randomToken(32);
   const t = now();
