@@ -20,7 +20,7 @@ export function pageCtx(c: C): PageCtx {
     testMode: !tossEnabled(c.env),
     flashes: takeFlash(c),
     path: new URL(c.req.url).pathname,
-    company: c.env.COMPANY_NAME || "모찌랩",
+    company: c.env.COMPANY_NAME || "모찌LAB.",
     email: c.env.SUPPORT_EMAIL || "help@labelpos.com",
   };
 }

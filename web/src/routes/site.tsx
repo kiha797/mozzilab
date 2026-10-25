@@ -75,7 +75,7 @@ site.post("/signup", async (c) => {
     .bind(email, (f.name || "").trim().slice(0, 100), await hashPassword(pw), f.marketing ? 1 : 0, now()).run();
   const user = await c.env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(r.meta.last_row_id).first<User>();
   await login(c, user!);
-  return flashRedirect(c, "success", "모찌랩 회원이 되신 것을 환영합니다! 🍡", safeNext(f.next, "/mypage"));
+  return flashRedirect(c, "success", "모찌LAB. 회원이 되신 것을 환영합니다! 🍡", safeNext(f.next, "/mypage"));
 });
 
 site.get("/login/:provider", async (c) => {
@@ -193,7 +193,7 @@ site.get("/billing/success", async (c) => {
     return flashRedirect(c, "error", `카드 등록에 실패했습니다: ${(e as Error).message}`, "/pricing");
   }
   const res = await startSubscription(c.env, user, "toss", billingKey, customerKey, card);
-  return res.ok ? flashRedirect(c, "success", "구독이 시작되었습니다. 이제 모든 모찌랩 제품을 광고 없이 쓸 수 있어요! 🎉", "/mypage")
+  return res.ok ? flashRedirect(c, "success", "구독이 시작되었습니다. 이제 모든 모찌LAB. 제품을 광고 없이 쓸 수 있어요! 🎉", "/mypage")
     : flashRedirect(c, "error", `결제에 실패했습니다: ${res.reason}`, "/mypage");
 });
 

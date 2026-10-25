@@ -5,7 +5,7 @@ import { displayName } from "../auth";
 import type { User } from "../db";
 
 export const BRAND = {
-  name: "모찌랩",
+  name: "모찌LAB.",
   en: "MozziLab",
   slogan: "말랑말랑, 누구나 쉬운 PC 도구",
 };

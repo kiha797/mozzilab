@@ -168,7 +168,7 @@ async function seed(env: Env) {
   if (!ac?.n) {
     const ins = "INSERT INTO ads (title, subtitle, link_url, placement, bg_color, button_text, created_at) VALUES (?,?,?,?,?,?,?)";
     await env.DB.batch([
-      env.DB.prepare(ins).bind("광고 없이 쾌적하게, 모찌 플러스", "월 5,500원으로 모든 모찌랩 광고 제거", "/pricing", "banner", "#ff6f91", "구독하기", t),
+      env.DB.prepare(ins).bind("광고 없이 쾌적하게, 모찌 플러스", "월 5,500원으로 모든 모찌LAB. 광고 제거", "/pricing", "banner", "#ff6f91", "구독하기", t),
       env.DB.prepare(ins).bind("모찌PDF 곧 출시!", "PDF 변환·합치기를 무료로", "/products/pdf", "banner", "#7ec8a9", "자세히 알아보기", t),
       env.DB.prepare(ins).bind("광고가 신경 쓰이나요?", "모찌 플러스로 광고 없이 캡처하세요. 언제든 해지 가능!", "/pricing", "popup", "#ff8fab", "광고 없이 쓰기", t),
     ]);
