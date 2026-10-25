@@ -5,13 +5,13 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
 import readline from "node:readline/promises";
 
-const TOML = new URL("../wrangler.toml", import.meta.url);
+const TOML = new URL("../../wrangler.toml", import.meta.url);
 const DB_NAME = "mozzilab-db";
 const isWin = process.platform === "win32";
 const npx = isWin ? "npx.cmd" : "npx";
 
 function run(args, opts = {}) {
-  return spawnSync(npx, ["wrangler", ...args], { encoding: "utf8", shell: isWin, ...opts });
+  return spawnSync(npx, ["wrangler", ...args, "--config", "../wrangler.toml"], { encoding: "utf8", shell: isWin, ...opts });
 }
 function step(n, msg) { console.log(`\n[${n}/4] ${msg}`); }
 

@@ -16,3 +16,7 @@ mochi_capture/build/
 mochi_capture/dist/
 mochi_capture/installer_output/
 mochi_capture/*.spec
+
+# 맨 위 폴더 설치 결과
+node_modules/
+.wrangler/

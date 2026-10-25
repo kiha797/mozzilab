@@ -6,7 +6,7 @@ name: Cloudflare 배포
 on:
   push:
     branches: [main]
-    paths: ["web/**", ".github/workflows/deploy.yml"]
+    paths: ["web/**", "wrangler.toml", "package.json", ".github/workflows/deploy.yml"]
   workflow_dispatch:
 
 concurrency:

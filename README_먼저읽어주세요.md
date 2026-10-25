@@ -26,8 +26,9 @@
 ```
 MozziLab/
 ├─ README_먼저읽어주세요.md    ← 지금 이 파일
+├─ wrangler.toml             ← Cloudflare 배포 설정 (도메인, DB, 매일 정기결제)
+├─ package.json              ← Cloudflare 가 설치할 프로그램 목록
 ├─ web/                       ← ① 웹사이트 (Cloudflare Workers + D1 데이터베이스)
-│   ├─ wrangler.toml          ← Cloudflare 배포 설정 (도메인, DB, 매일 정기결제)
 │   ├─ src/                   ← 사이트 프로그램 (TypeScript)
 │   │   ├─ routes/site.tsx    사용자 사이트   ├─ routes/admin.tsx  관리자 사이트
 │   │   ├─ routes/api.ts      PC 프로그램용   ├─ billing.ts        토스페이먼츠 정기결제
@@ -48,7 +49,7 @@ MozziLab/
 
 이미 준비된 것 ✅
 - 데이터베이스 `mozzilab-db` (표 13개 + 관리자 계정 + 로그인 암호키) — Claude 가 Cloudflare 커넥터로 만들어 둠
-- `web/wrangler.toml` 에 데이터베이스 ID 와 도메인(mozzilab.labelpos.com) 설정 완료
+- 저장소 맨 위 `wrangler.toml` 에 데이터베이스 ID 와 도메인(mozzilab.labelpos.com) 설정 완료
 - **비밀값(Secret)은 넣지 않아도 됩니다** (암호키를 데이터베이스에서 읽음)
 
 남은 일 — Cloudflare 화면에서 GitHub 연결 (처음 한 번)
@@ -56,7 +57,7 @@ MozziLab/
 2. **저장소 가져오기(Import a repository)** → GitHub 계정 연결 → **kiha797 / mozzilab** 선택
 3. 설정 화면에서
    - 프로젝트 이름: `mozzilab`
-   - **고급 설정 → 루트 디렉터리(Root directory): `web`**  ← 가장 중요!
+   - 루트 디렉터리(Root directory): **비워두기** (저장소 맨 위에 설정 파일이 있음)
    - 빌드 명령: 비워두기 / 배포 명령: `npx wrangler deploy`
 4. **저장 및 배포(Save and Deploy)** → 1~2분 뒤 https://mozzilab.labelpos.com
 5. 관리자: https://mozzilab.labelpos.com/admin  (처음 받은 비밀번호로 로그인 후 마이페이지에서 비밀번호 변경)

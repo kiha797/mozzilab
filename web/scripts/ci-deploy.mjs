@@ -9,7 +9,7 @@ const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i;
 const env = process.env;
 
 function wrangler(args, input) {
-  const r = spawnSync("npx", ["wrangler", ...args], { encoding: "utf8", input });
+  const r = spawnSync("npx", ["wrangler", ...args, "--config", "../wrangler.toml"], { encoding: "utf8", input });
   return { ok: r.status === 0, out: (r.stdout || "") + (r.stderr || "") };
 }
 function fail(msg, detail = "") {
@@ -35,7 +35,7 @@ if (!id) {
   if (!id) fail("데이터베이스를 만들지 못했습니다.", created.out);
   console.log(`   새로 만듦: ${id}`);
 } else console.log(`   기존 것 사용: ${id}`);
-const tomlPath = new URL("../wrangler.toml", import.meta.url);
+const tomlPath = new URL("../../wrangler.toml", import.meta.url);
 writeFileSync(tomlPath, readFileSync(tomlPath, "utf8").replace(/database_id\s*=\s*"[^"]*"/, `database_id = "${id}"`));
 
 // 2. 배포

@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "모찌랩 웹사이트 (Cloudflare Workers + D1)",
   "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --config ../wrangler.toml",
+    "deploy": "wrangler deploy --config ../wrangler.toml",
     "check": "tsc --noEmit"
   },
   "dependencies": {
