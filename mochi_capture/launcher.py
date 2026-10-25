@@ -28,8 +28,8 @@ class Launcher(QWidget):
         self.buttons = {}
 
         h = QHBoxLayout(self)
-        h.setContentsMargins(px(6), px(6), px(6), px(6))
-        h.setSpacing(px(2))
+        h.setContentsMargins(px(4), px(4), px(4), px(4))
+        h.setSpacing(0)
         h.addWidget(self._button("취소", "cancel", self.hide, "실행창 닫기 (ESC)"))
         h.addWidget(self._sep())
         for mode, text, ic in MODES:
@@ -61,6 +61,7 @@ class Launcher(QWidget):
         self.menu.addSeparator()
         self.menu.addAction(icon("settings"), "환경설정", self.ctrl.show_settings)
         self.menu.addAction(icon("help"), "도움말", self.ctrl.show_help)
+        self.menu.addAction(icon("reset"), "업데이트 확인", lambda: (self.hide(), self.ctrl.updater.check(manual=True)))
         self.menu.aboutToShow.connect(self.sync_menu)
         menu_btn.setMenu(self.menu)
         menu_btn.setStyleSheet("QToolButton::menu-indicator { image: none; width: 0; }")
@@ -70,10 +71,10 @@ class Launcher(QWidget):
 
     def _button(self, text, icon_name, slot, tip=""):
         b = QToolButton()
-        b.setProperty("role", "big")
+        b.setProperty("role", "launch")           # 알캡처처럼 작고 촘촘한 버튼
         b.setText(text)
         b.setIcon(icon(icon_name))
-        b.setIconSize(QSize(px(30), px(30)))
+        b.setIconSize(QSize(px(28), px(28)))
         b.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         b.setCursor(Qt.PointingHandCursor)
         b.setToolTip(tip)
@@ -85,7 +86,7 @@ class Launcher(QWidget):
     def _sep():
         s = QFrame()
         s.setObjectName("vsep")
-        s.setFixedHeight(px(54))
+        s.setFixedHeight(px(56))
         return s
 
     # ---------- 메뉴 ----------

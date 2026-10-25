@@ -185,6 +185,13 @@ def stylesheet():
     QToolButton[role="big"]::menu-button {{ border: none; background: transparent; width: {px(14)}px; }}
     QToolButton[role="big"]::menu-button:hover {{ background: #ffd3de; border-radius: 4px; }}
     QListWidget#historyList::item:selected:!active {{ border: 3px solid {ACCENT}; background: transparent; }}
+    QToolButton[role="launch"] {{
+        border: none; border-radius: 5px; background: transparent;
+        padding: {px(8)}px {px(4)}px {px(6)}px {px(4)}px; min-width: {px(58)}px; font-size: 9.5pt; color: #555;
+    }}
+    QToolButton[role="launch"]:hover {{ background: #fff0f4; }}
+    QToolButton[role="launch"]:checked {{ background: #ffe3eb; color: {ACCENT}; }}
+    QToolButton[role="launch"]::menu-indicator {{ image: none; width: 0; }}
     QToolButton[role="big"]::menu-indicator {{ subcontrol-position: bottom center; subcontrol-origin: padding; bottom: -2px; }}
     QFrame#vsep {{ background: #e3e5ea; min-width: 1px; max-width: 1px; }}
     QScrollArea#canvasArea {{ background: #e8ebf2; border: none; }}

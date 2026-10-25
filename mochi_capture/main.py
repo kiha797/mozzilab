@@ -9,7 +9,7 @@ sys.path.insert(1, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 # 화면 배율(125%, 150%)에서도 캡처 좌표가 정확하도록 실제 픽셀 기준으로 동작
 os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "0")
 
-from PySide6.QtCore import QAbstractNativeEventFilter, QObject, QTimer
+from PySide6.QtCore import QAbstractNativeEventFilter, QObject, Qt, QTimer
 from PySide6.QtGui import QCursor, QImage
 from PySide6.QtNetwork import QLocalServer, QLocalSocket
 from PySide6.QtWidgets import QApplication, QMenu, QMessageBox, QSystemTrayIcon
@@ -28,6 +28,7 @@ from scroll_capture import ScrollCapture
 from settings_dialog import SettingsDialog, hotkey_label, key_to_vk
 from toast import show_toast
 from ui import app_icon, icon, stylesheet
+from updater import Updater
 
 VK_PRINT = 0x2C
 HK_PRINTSCREEN = 1
@@ -79,6 +80,9 @@ class Controller(QObject):
         self.sync_timer = QTimer(self)
         self.sync_timer.timeout.connect(lambda: (self.account.refresh(), self.ads.fetch()))
         self.sync_timer.start(3 * 60 * 60 * 1000)      # 3시간마다 구독 상태·광고 새로 확인
+        # 자동 업데이트: 켜고 8초 뒤 확인 (하루 한 번)
+        self.updater = Updater(self.cfg, on_quit=self.quit)
+        QTimer.singleShot(8000, self.updater.check)
         self.launcher = Launcher(self)
         self._setup_tray()
         self.hotkey_filter = HotkeyFilter(self._on_hotkey)
@@ -104,7 +108,8 @@ class Controller(QObject):
             show_toast("로그인 완료", f"{self.account.name} 님, {msg}", msec=5000)
 
     def logout(self):
-        if QMessageBox.question(None, APP_NAME, "로그아웃할까요?") == QMessageBox.Yes:
+        if self._message(QMessageBox.Question, APP_NAME, "로그아웃할까요?",
+                         QMessageBox.Yes | QMessageBox.No) == QMessageBox.Yes:
             self.account.logout()
 
     # ---------- 트레이 ----------
@@ -198,7 +203,7 @@ class Controller(QObject):
         acc = self.account
         state = (f"{acc.name} 님 · " + ("⭐ 모찌 플러스 (광고 없음)" if acc.premium else "무료 회원")) \
             if acc.logged_in else "로그인 안 함 (무료)"
-        QMessageBox.information(None, f"{APP_NAME} 도움말",
+        self._message(QMessageBox.Information, f"{APP_NAME} 도움말",
                                 f"{APP_NAME} v{APP_VERSION}  ·  {BRAND_NAME}\n계정: {state}\n"
                                 f"웹사이트: {SERVER_URL}\n\n"
                                 "[단축키]\n" + "\n".join(lines) + "\n" + HELP_TAIL +
@@ -230,16 +235,32 @@ class Controller(QObject):
             ed.raise_()
             ed.activateWindow()
 
+    def _bring_front(self, dlg):
+        """실행창(항상 위) 뒤에 창이 숨지 않도록: 실행창은 잠시 숨기고 새 창을 맨 앞으로"""
+        self.launcher.hide()
+        dlg.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        dlg.show()
+        dlg.raise_()
+        dlg.activateWindow()
+
+    def _message(self, kind, title, text, buttons=QMessageBox.Ok):
+        box = QMessageBox(kind, title, text, buttons)
+        box.setWindowIcon(app_icon())
+        self._bring_front(box)
+        box.exec()
+        return box.standardButton(box.clickedButton())
+
     def show_settings(self, page=0):
         parent = self.editor if self.editor and self.editor.isVisible() else None
         dlg = SettingsDialog(self.cfg, parent, page if isinstance(page, int) else 0)
         dlg.setWindowIcon(app_icon())
+        self._bring_front(dlg)
         if not dlg.exec():
             return
         winapi.set_autostart(self.cfg["autostart"])
         failed = self.apply_hotkeys()
         if failed:
-            QMessageBox.warning(None, APP_NAME, "다음 단축키는 다른 프로그램이 사용 중이라 등록하지 못했습니다:\n\n"
+            self._message(QMessageBox.Warning, APP_NAME, "다음 단축키는 다른 프로그램이 사용 중이라 등록하지 못했습니다:\n\n"
                                 + "\n".join(failed) + "\n\n다른 조합으로 바꿔 주세요.")
         if self.cfg.get("auto_prune"):
             self.history.prune()

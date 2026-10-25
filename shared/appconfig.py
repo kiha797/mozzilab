@@ -9,6 +9,8 @@ BASE_DEFAULTS = {
     "capture_count": 0,        # 팝업 광고 빈도 계산용 (작업 완료 횟수)
     "last_dir": "",            # 마지막으로 연 폴더
     "geometry": None,          # 창 위치/크기
+    "update_checked_at": "",   # 마지막 업데이트 확인 시각
+    "update_skip": "",         # '이 버전 건너뛰기' 한 버전
 }
 
 

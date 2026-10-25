@@ -94,6 +94,8 @@ DEFAULTS = {
     "device_id": "",           # 이 PC 고유번호 (로그인 기기 구분용)
     "account": {},             # 로그인 정보 {token, email, name, premium, expires_at, checked_at}
     "capture_count": 0,        # 팝업 광고 빈도 계산용
+    "update_checked_at": "",   # 마지막 업데이트 확인 시각
+    "update_skip": "",         # '이 버전 건너뛰기' 한 버전
     "first_run": True,
 }
 

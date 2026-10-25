@@ -14,6 +14,7 @@ from ads import AdBlock, AdManager, PopupAd
 from appconfig import AppConfig
 from toast import show_toast
 from ui import ACCENT, app_icon, icon, px, stylesheet
+from updater import Updater
 
 import brand
 
@@ -129,6 +130,13 @@ class MozziWindow(QMainWindow):
         self.sync_timer = QTimer(self)
         self.sync_timer.timeout.connect(lambda: (self.account.refresh(), self.ads.fetch()))
         self.sync_timer.start(3 * 60 * 60 * 1000)
+
+        # 자동 업데이트: 켜고 8초 뒤 확인 (하루 한 번) + 왼쪽 아래 '업데이트 확인'
+        self.updater = Updater(self.cfg, on_quit=self.close)
+        QTimer.singleShot(8000, self.updater.check)
+        ver = QLabel(f"<a href='#' style='color:#a3979a; text-decoration:none'>v{brand.APP_VERSION} · 업데이트 확인</a>")
+        ver.linkActivated.connect(lambda _: self.updater.check(manual=True))
+        sb.addWidget(ver)
 
         g = self.cfg.get("geometry")
         if g and len(g) == 4:
