@@ -243,3 +243,41 @@ img { max-width: 100%; }
   .admin-main { padding: 20px 16px; }
   .table { display: block; overflow-x: auto; }
 }
+
+/* ---------- 제품 상세 (자세히) ---------- */
+.app-icon { display: block; border-radius: 22%; margin-bottom: 16px; box-shadow: 0 6px 18px rgba(59,47,47,.12); }
+.product-hero .container { grid-template-columns: .95fr 1.05fr; }
+.hero-shot { display: block; border-radius: 16px; overflow: hidden; box-shadow: 0 24px 60px rgba(59,47,47,.18);
+             border: 1px solid var(--line); transform: rotate(.6deg); transition: transform .2s; background: #fff; }
+.hero-shot:hover { transform: rotate(0) scale(1.01); }
+.hero-shot img { display: block; width: 100%; }
+.shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.shot { margin: 0; background: #fff; border: 1.5px solid var(--line); border-radius: var(--radius); overflow: hidden;
+        transition: transform .15s, box-shadow .15s; }
+.shot:hover { transform: translateY(-4px); box-shadow: var(--shadow); }
+.shot a { display: block; background: #f6f3f2; aspect-ratio: 16 / 10; overflow: hidden; }
+.shot img { width: 100%; height: 100%; object-fit: cover; object-position: top left; display: block; }
+.shot figcaption { padding: 16px 18px 20px; }
+.shot figcaption b { display: block; font-size: 17px; margin-bottom: 4px; }
+.shot figcaption span { color: var(--ink-2); font-size: 14px; }
+.lightbox { display: none; position: fixed; inset: 0; z-index: 100; align-items: center; justify-content: center; padding: 24px; }
+.lightbox:target { display: flex; }
+.lightbox-bg { position: absolute; inset: 0; background: rgba(30, 22, 24, .78); }
+.lightbox figure { position: relative; margin: 0; max-width: min(1400px, 96vw); text-align: center; }
+.lightbox img { max-width: 100%; max-height: 80vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.4); background: #fff; }
+.lightbox figcaption { color: #fff; margin-top: 12px; font-size: 15px; }
+.lightbox-nav { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
+.lightbox-nav a { color: #fff; background: rgba(255,255,255,.16); padding: 8px 16px; border-radius: 999px; text-decoration: none; }
+.lightbox-nav a:hover { background: var(--pink); }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+.step { background: var(--pink-soft); border-radius: var(--radius); padding: 26px; }
+.step-no { width: 38px; height: 38px; border-radius: 50%; background: var(--pink); color: #fff; font-weight: 800;
+           display: grid; place-items: center; margin-bottom: 12px; font-size: 18px; }
+.step b { display: block; font-size: 18px; margin-bottom: 6px; }
+.step span { color: var(--ink-2); font-size: 15px; }
+.formats { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+.formats b { margin-right: 6px; }
+@media (max-width: 900px) {
+  .product-hero .container, .shots, .steps { grid-template-columns: 1fr; }
+  .hero-shot { transform: none; }
+}

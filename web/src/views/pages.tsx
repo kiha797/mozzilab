@@ -3,11 +3,14 @@ import { raw } from "hono/html";
 import { displayName } from "../auth";
 import { APP_NAMES, fmt, PAY_STATUS, SUB_METHOD, SUB_STATUS, won, type Device, type DeviceCode, type Payment, type Product, type Subscription, type User } from "../db";
 import { Badge, BRAND, Csrf, Layout, PAY_BADGE, type PageCtx } from "./layout";
+import { PRODUCT_INFO } from "./product_info";
 
 const ProductIcon = ({ p, size = 64 }: { p: Product; size?: number }) => (
-  <div class="p-icon" style={`background:${p.color}22;width:${size}px;height:${size}px`}>
-    <img src="/img/mochi.svg" alt="" style={`filter:drop-shadow(0 2px 0 ${p.color})`} />
-  </div>
+  PRODUCT_INFO[p.slug]
+    ? <img class="app-icon" src={`/img/apps/${p.slug}.svg`} alt="" style={`width:${size}px;height:${size}px`} />
+    : <div class="p-icon" style={`background:${p.color}22;width:${size}px;height:${size}px`}>
+        <img src="/img/mochi.svg" alt="" style={`filter:drop-shadow(0 2px 0 ${p.color})`} />
+      </div>
 );
 
 export const Home = ({ c, products }: { c: PageCtx; products: Product[] }) => (
@@ -69,24 +72,97 @@ export const Home = ({ c, products }: { c: PageCtx; products: Product[] }) => (
   </Layout>
 );
 
-export const ProductPage = ({ c, p }: { c: PageCtx; p: Product }) => (
-  <Layout c={c} title={p.name}>
-    <section class="hero" style="padding:60px 0">
-      <div class="container">
-        <div>
-          <ProductIcon p={p} size={80} />
-          <h1>{p.name}</h1>
-          <p>{p.tagline}<br /><span class="small">{p.description}</span></p>
-          {p.status === "released" ? (
-            <><a class="btn btn-pink btn-lg" href={`/download/${p.slug}`}>무료 다운로드 (v{p.version})</a>
-              <p class="small muted" style="margin-top:12px">Windows 10 / 11 · 무료 버전은 결과창에 광고가 표시됩니다</p></>
-          ) : <span class="badge badge-gray" style="font-size:15px;padding:8px 16px">🛠 열심히 만드는 중이에요</span>}
+export const ProductPage = ({ c, p }: { c: PageCtx; p: Product }) => {
+  const info = PRODUCT_INFO[p.slug];
+  const released = p.status === "released";
+  return (
+    <Layout c={c} title={p.name}>
+      <section class="hero product-hero" style="padding:56px 0 48px">
+        <div class="container">
+          <div>
+            <ProductIcon p={p} size={84} />
+            {info?.similar && <span class="badge">{info.similar}</span>}
+            <h1 style="font-size:44px">{info?.headline || p.name}</h1>
+            <p>{info?.intro || p.tagline}</p>
+            {released ? (
+              <><a class="btn btn-pink btn-lg" href={`/download/${p.slug}`}>무료 다운로드 (v{p.version})</a>
+                <p class="small muted" style="margin-top:12px">Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 새 버전은 자동으로 업데이트돼요</p></>
+            ) : <span class="badge badge-gray" style="font-size:15px;padding:8px 16px">🛠 열심히 만드는 중이에요</span>}
+          </div>
+          {info?.shots[0] ? (
+            <a class="hero-shot" href="#shot-0"><img src={info.shots[0].src} alt={`${p.name} 화면`} loading="eager" /></a>
+          ) : <div class="hero-mochi"><img src="/img/mochi.svg" alt="" /></div>}
         </div>
-        <div class="hero-mochi"><img src="/img/mochi.svg" alt="" /></div>
-      </div>
-    </section>
-  </Layout>
-);
+      </section>
+      {info && (
+        <>
+          <section class="section" style="padding-top:56px">
+            <div class="container">
+              <h2>화면 미리 보기</h2>
+              <p class="lead">실제 {p.name} 화면이에요. 누르면 크게 볼 수 있어요.</p>
+              <div class="shots">
+                {info.shots.map((s, i) => (
+                  <figure class="shot">
+                    <a href={`#shot-${i}`}><img src={s.src} alt={s.title} loading="lazy" /></a>
+                    <figcaption><b>{s.title}</b><span>{s.desc}</span></figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </section>
+          {info.shots.map((s, i) => (
+            <div class="lightbox" id={`shot-${i}`}>
+              <a class="lightbox-bg" href="#close" aria-label="닫기"></a>
+              <figure>
+                <img src={s.src} alt={s.title} />
+                <figcaption><b>{s.title}</b> · {s.desc}</figcaption>
+                <div class="lightbox-nav">
+                  {i > 0 && <a href={`#shot-${i - 1}`}>‹ 이전</a>}
+                  <a href="#close">닫기 ✕</a>
+                  {i < info.shots.length - 1 && <a href={`#shot-${i + 1}`}>다음 ›</a>}
+                </div>
+              </figure>
+            </div>
+          ))}
+          <section class="section" style="background:var(--cream)">
+            <div class="container">
+              <h2>이런 걸 할 수 있어요</h2>
+              <p class="lead">{p.description}</p>
+              <div class="features">
+                {info.features.map((f) => (
+                  <div class="feature" style="background:#fff"><span class="emoji">{f.icon}</span><b>{f.title}</b><span>{f.desc}</span></div>
+                ))}
+              </div>
+            </div>
+          </section>
+          <section class="section">
+            <div class="container">
+              <h2>이렇게 써요</h2>
+              <p class="lead">처음 쓰는 분도 3단계면 충분해요.</p>
+              <div class="steps">
+                {info.steps.map((st, i) => (
+                  <div class="step"><div class="step-no">{i + 1}</div><b>{st.title}</b><span>{st.desc}</span></div>
+                ))}
+              </div>
+              <div class="formats">
+                <b>지원하는 파일</b>
+                {info.formats.map((f) => <span class="badge badge-gray">{f}</span>)}
+              </div>
+            </div>
+          </section>
+        </>
+      )}
+      <section class="section" style="padding-top:0">
+        <div class="container">
+          <div class="plus-banner">
+            <div><h2>광고 없이 쓰고 싶다면 {c.s.plan_name}</h2><p>월 {won(Number(c.s.price))}으로 {p.name}을(를) 포함한 모든 {BRAND.name} PC 제품의 광고가 사라져요.</p></div>
+            {released ? <a class="btn btn-lg" href={`/download/${p.slug}`}>무료로 먼저 써보기</a> : <a class="btn btn-lg" href="/pricing">자세히 보기</a>}
+          </div>
+        </div>
+      </section>
+    </Layout>
+  );
+};
 
 export const Pricing = ({ c }: { c: PageCtx }) => (
   <Layout c={c} title={c.s.plan_name}>
