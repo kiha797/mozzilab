@@ -22,12 +22,11 @@ pattern = "mozzilab.labelpos.com"
 custom_domain = true
 
 # 데이터베이스 (Cloudflare D1)
-# ▼ Cloudflare 대시보드 > Storage & Databases > D1 > Create 에서 'mozzilab-db' 를 만들고
-#   나오는 Database ID 를 아래 따옴표 안에 붙여넣으세요.
+# (Cloudflare 계정에 이미 만들어 둔 mozzilab-db)
 [[d1_databases]]
 binding = "DB"
 database_name = "mozzilab-db"
-database_id = "여기에-D1-Database-ID-를-붙여넣으세요"
+database_id = "de5a754b-03d1-4a1d-b560-8b953910d979"
 
 # 매일 00:00 UTC = 한국 시간 오전 9시 정기결제 실행
 [triggers]

@@ -62,13 +62,25 @@ async function hmac(secret: string, data: string): Promise<string> {
 }
 
 const COOKIE = "ml_sess";
-const secretOf = (env: Env) => env.SECRET_KEY || "dev-change-me";
+let cachedSecret: string | null = null;
+
+/** 로그인 쿠키 암호키: Cloudflare 비밀값(SECRET_KEY)이 있으면 그것, 없으면 데이터베이스에 한 번 만들어 둔 값 */
+async function secretOf(env: Env): Promise<string> {
+  if (env.SECRET_KEY) return env.SECRET_KEY;
+  if (cachedSecret) return cachedSecret;
+  const row = await env.DB.prepare("SELECT value FROM settings WHERE key = '_secret_key'").first<{ value: string }>();
+  if (row?.value) return (cachedSecret = row.value);
+  const fresh = randomToken(32);
+  await env.DB.prepare("INSERT INTO settings (key, value) VALUES ('_secret_key', ?) ON CONFLICT(key) DO NOTHING").bind(fresh).run();
+  const saved = await env.DB.prepare("SELECT value FROM settings WHERE key = '_secret_key'").first<{ value: string }>();
+  return (cachedSecret = saved?.value || fresh);
+}
 
 export async function loadSession(c: Context<any>): Promise<Session> {
   const raw = getCookie(c, COOKIE);
   if (raw && raw.includes(".")) {
     const [body, sig] = raw.split(".");
-    if ((await hmac(secretOf(c.env), body)) === sig) {
+    if ((await hmac(await secretOf(c.env), body)) === sig) {
       try {
         const s = JSON.parse(new TextDecoder().decode(fromB64url(body))) as Session;
         if (s.exp > Date.now()) return s;
@@ -80,7 +92,7 @@ export async function loadSession(c: Context<any>): Promise<Session> {
 
 export async function saveSession(c: Context<any>, s: Session) {
   const body = b64url(enc.encode(JSON.stringify(s)));
-  setCookie(c, COOKIE, `${body}.${await hmac(secretOf(c.env), body)}`, {
+  setCookie(c, COOKIE, `${body}.${await hmac(await secretOf(c.env), body)}`, {
     path: "/", httpOnly: true, sameSite: "Lax", secure: c.req.url.startsWith("https://"), maxAge: 30 * 86400,
   });
 }

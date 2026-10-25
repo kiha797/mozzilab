@@ -44,7 +44,28 @@ MozziLab/
 
 ---
 
-## 3. Cloudflare 자동 배포 설정 (추천 · 약 10분)
+## 3. Cloudflare 연결 (가장 쉬움 · 클릭 몇 번)
+
+이미 준비된 것 ✅
+- 데이터베이스 `mozzilab-db` (표 13개 + 관리자 계정 + 로그인 암호키) — Claude 가 Cloudflare 커넥터로 만들어 둠
+- `web/wrangler.toml` 에 데이터베이스 ID 와 도메인(mozzilab.labelpos.com) 설정 완료
+- **비밀값(Secret)은 넣지 않아도 됩니다** (암호키를 데이터베이스에서 읽음)
+
+남은 일 — Cloudflare 화면에서 GitHub 연결 (처음 한 번)
+1. https://dash.cloudflare.com → 왼쪽 **Workers 및 Pages** → **애플리케이션 생성(Create application)**
+2. **저장소 가져오기(Import a repository)** → GitHub 계정 연결 → **kiha797 / mozzilab** 선택
+3. 설정 화면에서
+   - 프로젝트 이름: `mozzilab`
+   - **고급 설정 → 루트 디렉터리(Root directory): `web`**  ← 가장 중요!
+   - 빌드 명령: 비워두기 / 배포 명령: `npx wrangler deploy`
+4. **저장 및 배포(Save and Deploy)** → 1~2분 뒤 https://mozzilab.labelpos.com
+5. 관리자: https://mozzilab.labelpos.com/admin  (처음 받은 비밀번호로 로그인 후 마이페이지에서 비밀번호 변경)
+
+이후에는 GitHub `main` 이 바뀔 때마다 Cloudflare 가 자동으로 다시 배포합니다.
+
+---
+
+## 3-0. (다른 방법) GitHub Actions 로 배포 · 토큰 필요
 
 GitHub 에 코드가 올라가면 **GitHub 이 알아서 Cloudflare 에 배포**합니다 (`.github/workflows/deploy.yml`).
 데이터베이스 만들기, 배포, 도메인 연결, 관리자 계정 만들기까지 자동입니다. **열쇠 4개만 넣어 주세요.**

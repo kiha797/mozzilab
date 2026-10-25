@@ -175,7 +175,7 @@ export const SETTING_DEFAULTS: Record<string, string> = {
 export async function getSettings(env: Env): Promise<Record<string, string>> {
   const rows = await env.DB.prepare("SELECT key, value FROM settings").all<{ key: string; value: string }>();
   const s = { ...SETTING_DEFAULTS };
-  for (const r of rows.results) s[r.key] = r.value;
+  for (const r of rows.results) if (!r.key.startsWith("_")) s[r.key] = r.value;   // _ 로 시작하는 값(암호키)은 화면에 쓰지 않음
   return s;
 }
 
