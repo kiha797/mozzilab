@@ -1,0 +1,5 @@
+# 내 PC에서 테스트할 때만 쓰는 설정 (이 파일을 복사해서 .dev.vars 로 이름 변경)
+SITE_URL=http://127.0.0.1:8787
+SECRET_KEY=local-test-secret-아무거나
+ADMIN_EMAIL=admin@mozzilab.local
+ADMIN_PASSWORD=admin1234!

@@ -1,0 +1,19 @@
+{
+  "name": "mozzilab-web",
+  "version": "1.0.0",
+  "description": "모찌랩 웹사이트 (Cloudflare Workers + D1)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "hono": "^4.6.14"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241218.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.99.0"
+  },
+  "private": true
+}

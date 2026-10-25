@@ -1,0 +1,18 @@
+# 공통
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+*.zip
+
+# 웹사이트 (Cloudflare)
+web/node_modules/
+web/.wrangler/
+web/.dev.vars
+
+# PC 프로그램 빌드 결과
+mochi_capture/venv/
+mochi_capture/build/
+mochi_capture/dist/
+mochi_capture/installer_output/
+mochi_capture/*.spec
