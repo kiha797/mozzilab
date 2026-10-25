@@ -110,7 +110,7 @@ export const Pricing = ({ c }: { c: PageCtx }) => (
           <div class="price">{Number(c.s.price).toLocaleString("ko-KR")}원 <small>/ 월</small></div>
           <ul>
             <li>{BRAND.name} PC 제품 내 <b>광고 완전 제거</b></li>
-            <li>앞으로 나올 모찌PDF·모찌압축에도 적용</li>
+            <li>모찌캡처·PDF·압축·포토·벡터 모두 적용</li>
             <li>PC 여러 대에서 같은 계정으로 사용</li>
             <li>언제든 해지 · 남은 기간까지 이용</li>
           </ul>

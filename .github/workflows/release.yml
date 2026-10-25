@@ -1,5 +1,5 @@
 # 모찌랩 설치파일 자동 만들기
-# GitHub 의 Windows 컴퓨터에서 모찌캡처 · 모찌PDF · 모찌압축 설치파일(Setup.exe)을 만들고
+# GitHub 의 Windows 컴퓨터에서 모찌캡처 · 모찌PDF · 모찌압축 · 모찌포토 · 모찌벡터 설치파일(Setup.exe)을 만들고
 # 저장소의 [Releases] (다운로드 페이지)에 올립니다.
 # 실행: 저장소 > Actions > "설치파일 만들기" > Run workflow (버전 입력)
 name: 설치파일 만들기
@@ -28,6 +28,8 @@ jobs:
           - { dir: mochi_capture, exe: MochiCapture, name: 모찌캡처, extra: "" }
           - { dir: mochi_pdf, exe: MochiPDF, name: 모찌PDF, extra: "--collect-all pypdfium2 --collect-all pypdfium2_raw" }
           - { dir: mochi_zip, exe: MochiZip, name: 모찌압축, extra: "--collect-submodules py7zr" }
+          - { dir: mochi_photo, exe: MochiPhoto, name: 모찌포토, extra: "" }
+          - { dir: mochi_vector, exe: MochiVector, name: 모찌벡터, extra: "" }
     defaults:
       run:
         shell: pwsh
@@ -111,6 +113,8 @@ jobs:
             | 📸 모찌캡처 | `MochiCapture_Setup.exe` |
             | 📄 모찌PDF | `MochiPDF_Setup.exe` |
             | 🗜️ 모찌압축 | `MochiZip_Setup.exe` |
+            | 🎨 모찌포토 | `MochiPhoto_Setup.exe` |
+            | ✒️ 모찌벡터 | `MochiVector_Setup.exe` |
 
             Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 광고 없이 쓰기: https://mozzilab.labelpos.com/pricing
           files: out/*.exe

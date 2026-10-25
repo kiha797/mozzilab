@@ -156,6 +156,12 @@ async function seed(env: Env) {
       env.DB.prepare(ins).bind("zip", "모찌압축", 3, "released", "1.0.0", "#ffb86b", "꾹 눌러 담는 압축 프로그램",
         "ZIP · 7Z 압축하기/풀기 · TAR 풀기 · 암호(AES-256) · 한글 이름 깨진 ZIP 복구 · 마우스 오른쪽 메뉴로 바로 풀기.",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiZip_Setup.exe"),
+      env.DB.prepare(ins).bind("photo", "모찌포토", 4, "released", "1.1.0", "#8a6cf0", "포토샵처럼 말랑하게, 사진 편집",
+        "레이어 · 혼합 모드 · 브러시 · 선택(마술봉·올가미) · 복제 도장 · 색 보정 · 필터 · PSD 열기/저장.",
+        "https://github.com/kiha797/mozzilab/releases/latest/download/MochiPhoto_Setup.exe"),
+      env.DB.prepare(ins).bind("vector", "모찌벡터", 5, "released", "1.1.0", "#2f9be8", "일러스트처럼 쓱쓱, 벡터 디자인",
+        "펜(베지어) · 도형 · 문자 · 그룹 · 정렬 · 패스파인더 · 그레이디언트 · SVG/PDF/PNG 내보내기.",
+        "https://github.com/kiha797/mozzilab/releases/latest/download/MochiVector_Setup.exe"),
     ]);
   }
   const ac = await env.DB.prepare("SELECT COUNT(*) AS n FROM ads").first<{ n: number }>();
@@ -212,7 +218,7 @@ export const activeDevices = async (env: Env, userId: number) =>
 export const SUB_STATUS: Record<string, string> = { active: "이용 중", canceled: "해지 예약", past_due: "결제 실패", expired: "종료" };
 export const SUB_METHOD: Record<string, string> = { toss: "카드 자동결제", test: "테스트 결제", manual: "관리자 부여" };
 export const PAY_STATUS: Record<string, string> = { paid: "결제 완료", failed: "결제 실패", refunded: "환불" };
-export const APP_NAMES: Record<string, string> = { capture: "모찌캡처", pdf: "모찌PDF", zip: "모찌압축" };
+export const APP_NAMES: Record<string, string> = { capture: "모찌캡처", pdf: "모찌PDF", zip: "모찌압축", photo: "모찌포토", vector: "모찌벡터" };
 
 export function adRunning(ad: Ad): boolean {
   const t = now();
