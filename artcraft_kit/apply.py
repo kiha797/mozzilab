@@ -31,8 +31,9 @@ class ApplyError(Exception):
 
 
 def read(p):
-    with open(p, encoding="utf-8") as f:
-        return f.read()
+    # newline="" : 파일의 줄바꿈을 그대로 둔다. CRLF 파일이면 LF 로 맞춰서 비교한다.
+    with open(p, encoding="utf-8", newline="") as f:
+        return f.read().replace("\r\n", "\n")
 
 
 def write(p, s):

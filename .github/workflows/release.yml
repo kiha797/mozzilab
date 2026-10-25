@@ -114,11 +114,16 @@ jobs:
         run: |
           $u = (Get-Content artcraft_kit/upstream.json -Raw | ConvertFrom-Json).${{ matrix.app }}
           git init -q src
+          # 윈도우 줄바꿈(CRLF)으로 바뀌면 apply.py 가 고칠 곳을 못 찾으니 원본 그대로 받는다
+          git -C src config core.autocrlf false
           git -C src remote add origin $u.repo
           git -C src fetch -q --depth 1 origin $u.rev
           git -C src checkout -q FETCH_HEAD
 
       - name: 모찌 버전으로 바꾸기 (이름 · 아이콘 · 로그인 · 광고 · 업데이트)
+        env:
+          PYTHONUTF8: "1"
+          PYTHONIOENCODING: "utf-8"
         run: |
           python -m pip install -q Pillow
           python artcraft_kit/apply.py ${{ matrix.app }} src ${{ steps.ver.outputs.version }}
