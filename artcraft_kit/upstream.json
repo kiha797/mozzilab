@@ -1,4 +1,36 @@
 {
-  "photo":  {"repo": "https://github.com/storytold/photocraft",  "rev": "b0622d20cadd7e994a51ce2f48e415efbbdec24f", "package": "photocraft"},
-  "vector": {"repo": "https://github.com/storytold/vectorcraft", "rev": "8bf090b25389b48aa6f9d7415de57c9ce7ccf8cb", "package": "vectorcraft"}
+  "photo": {
+    "repo": "https://github.com/storytold/photocraft",
+    "rev": "b0622d20cadd7e994a51ce2f48e415efbbdec24f",
+    "package": "photocraft"
+  },
+  "vector": {
+    "repo": "https://github.com/storytold/vectorcraft",
+    "rev": "8bf090b25389b48aa6f9d7415de57c9ce7ccf8cb",
+    "package": "vectorcraft"
+  },
+  "hwp": {
+    "repo": "https://github.com/edwardkim/rhwp",
+    "rev": "1a76570e833917d15817415a53c09ad61ab3203f",
+    "package": "rhwp",
+    "paths": [
+      "/*.toml",
+      "/Cargo.lock",
+      "/build.rs",
+      "/LICENSE",
+      "/THIRD_PARTY_LICENSES.md",
+      "/src/",
+      "/crates/",
+      "/rhwp-studio/",
+      "/assets/fonts/",
+      "/assets/logo/",
+      "/npm/",
+      "/typescript/",
+      "/ttfs/",
+      "/vendor/",
+      "/saved/",
+      "/scripts/",
+      "/rhwp-shared/"
+    ]
+  }
 }

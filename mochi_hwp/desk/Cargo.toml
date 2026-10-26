@@ -1,0 +1,29 @@
+# 모찌한글 데스크톱 앱 (Tauri 2)
+# 화면(문서 편집기)은 오픈소스 HWP 편집기의 웹 화면을 빌드해서 넣고,
+# 이 프로그램은 창 · 파일 열기 · 모찌LAB. 로그인/광고/자동 업데이트를 맡는다.
+[package]
+name = "mochi-hwp"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+
+[workspace]
+
+[[bin]]
+name = "MochiHwp"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde_json = "1"
+log = "0.4"
+ureq = { version = "3.4", default-features = false, features = ["rustls", "platform-verifier"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true

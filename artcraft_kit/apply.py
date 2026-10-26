@@ -21,6 +21,8 @@ KIT = os.path.dirname(os.path.abspath(__file__))
 APPS = {
     "photo": {"upstream": "PhotoCraft", "lower": "photocraft", "name": "모찌포토", "app_id": "MochiPhoto",
               "slug": "photo", "rdns": "ai.storyteller.photocraft"},
+    "hwp": {"upstream": "rhwp", "lower": "rhwp", "name": "모찌한글", "app_id": "MochiHwp",
+            "slug": "hwp", "rdns": "kr.rhwp.desk"},
     "vector": {"upstream": "VectorCraft", "lower": "vectorcraft", "name": "모찌벡터", "app_id": "MochiVector",
                "slug": "vector", "rdns": "ai.storyteller.vectorcraft"},
 }
@@ -209,7 +211,7 @@ def main():
     which, root, version = sys.argv[1], os.path.abspath(sys.argv[2]), sys.argv[3]
     print(f"{APPS[which]['name']} 만들기: {root} (v{version})")
     try:
-        {"photo": apply_photo, "vector": apply_vector}[which](root, version)
+        {"photo": apply_photo, "vector": apply_vector, "hwp": apply_hwp}[which](root, version)
     except ApplyError as e:
         print("\n[오류] " + str(e))
         print("원본 코드가 바뀐 것 같아요. artcraft_kit/upstream.json 의 커밋을 확인하세요.")
@@ -283,6 +285,67 @@ def apply_vector(root, version):
     edit(root, "apps/vectorcraft/build.rs", '.set("LegalCopyright", "Copyright (c) the 모찌벡터 authors. MIT OR Apache-2.0.")',
          '.set("LegalCopyright", "MozziLab. Open-source licenses: see the licenses folder.")')
     render_icons(root, app, read(os.path.join(KIT, "icons", "vector.svg")))
+
+
+def mozzi_core(app, version):
+    """mozzi.rs 에서 화면(egui) 부분을 뺀 '상태 · 네트워크 · 업데이트' 부분만"""
+    src = read(os.path.join(KIT, "mozzi.rs"))
+    core = src[:src.index("fn hex(")]
+    core = "\n".join(ln for ln in core.splitlines() if not ln.startswith("use egui::") and not ln.startswith("const ACCENT"))
+    for k, v in (("@@SLUG@@", app["slug"]), ("@@APP_ID@@", app["app_id"]), ("@@NAME@@", app["name"]),
+                 ("@@VERSION@@", version)):
+        core = core.replace(k, v)
+    return core + "\n"
+
+
+def apply_hwp(root, version):
+    """오픈소스 HWP 편집기(rhwp)의 웹 화면을 모찌한글로 바꾸고, 데스크톱 앱(Tauri)을 붙인다"""
+    app = APPS["hwp"]
+    repo = os.path.dirname(KIT)
+    # 빌드에 필요 없는 도구 · 바인딩은 내려받지 않으므로 워크스페이스에서 뺀다
+    toml = read(os.path.join(root, "Cargo.toml"))
+    toml = re.sub(r'members = \[[^\]]*\]', 'members = [".", "crates/*"]', toml, count=1)
+    write(os.path.join(root, "Cargo.toml"), toml)
+    st = "rhwp-studio"
+    edit(root, f"{st}/index.html", "<title>rhwp-studio</title>", "<title>모찌한글</title>")
+    edit(root, f"{st}/index.html", "rhwp-studio 문서 편집기", "모찌한글 문서 편집기")
+    edit(root, f"{st}/src/ui/document-title.ts", "`${bridge.fileName} - rhwp-studio`", "`${bridge.fileName} - 모찌한글`")
+    edit(root, f"{st}/src/ui/document-title.ts", ": 'rhwp-studio';", ": '모찌한글';")
+    about = f"{st}/src/ui/about-dialog.ts"
+    edit(root, about, "titleEn.textContent = 'HWP/HWPX Compatible Module for Rust';", "titleEn.textContent = '모찌한글';")
+    edit(root, about, "version.textContent = `Version ${__APP_VERSION__}`;", f"version.textContent = '버전 {version}';")
+    edit(root, about, "tech.textContent = 'Rust + WebAssembly + TypeScript';", "tech.textContent = '모찌LAB. · mozzilab.labelpos.com';")
+    edit(root, about, "copyright.textContent = '\\u00A9 2026 rhwp: Edward Kim';",
+         "copyright.textContent = '\\u00A9 2026 모찌LAB. · 오픈소스 라이선스 전문은 설치 폴더의 licenses 폴더에 있습니다.';")
+    for loc, pairs in (("ko", (('"HWP 오픈소스 편집"', '"HWP · HWPX 문서 편집기"'), ("rhwp 기본 지원 글꼴", "모찌한글 기본 지원 글꼴"),
+                               ("rhwp는 브라우저의", "모찌한글은 브라우저의"))),
+                       ("en", (('"Open source HWP editing"', '"HWP · HWPX document editor"'), ("the rhwp default set", "the MochiHwp default set"),
+                               ("rhwp checks", "MochiHwp checks"), ("rhwp uses your", "MochiHwp uses your")))):
+        for a, b in pairs:
+            edit(root, f"{st}/src/i18n/locales/{loc}.ts", a, b, count=0)
+    # 데스크톱 앱 안에서는 웹 앱 설치(PWA)가 필요 없다
+    edit(root, f"{st}/vite.config.ts", "    VitePWA({", "    false && VitePWA({")
+    pkg = read(os.path.join(root, st, "package.json"))
+    write(os.path.join(root, st, "package.json"), re.sub(r'"version": "[^"]+"', f'"version": "{version}"', pkg, count=1))
+    # 데스크톱 앱(Tauri) 복사 + 모찌LAB. 연동 코드 만들기
+    desk = os.path.join(root, "mochi-desk")
+    if os.path.exists(desk):
+        shutil.rmtree(desk)
+    shutil.copytree(os.path.join(repo, "mochi_hwp", "desk"), desk, ignore=shutil.ignore_patterns("target", "gen"))
+    write(os.path.join(desk, "src", "mozzi.rs"), mozzi_core(app, version) + read(os.path.join(desk, "mozzi_api.rs")))
+    conf = read(os.path.join(desk, "tauri.conf.json"))
+    write(os.path.join(desk, "tauri.conf.json"), conf.replace('"version": "1.0.0"', f'"version": "{version}"'))
+    from PIL import Image
+    big = Image.open(os.path.join(KIT, "icons", "hwp-1024.png")).convert("RGBA")
+    os.makedirs(os.path.join(desk, "icons"), exist_ok=True)
+    big.resize((512, 512), Image.LANCZOS).save(os.path.join(desk, "icons", "icon.png"))
+    big.save(os.path.join(desk, "icons", "icon.ico"), sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+    pub = os.path.join(root, st, "public")
+    big.save(os.path.join(pub, "favicon.ico"), sizes=[(16, 16), (32, 32), (48, 48)])
+    for n in (128, 192, 256, 512):
+        p = os.path.join(pub, "icons", f"icon-{n}.png")
+        if os.path.exists(p):
+            big.resize((n, n), Image.LANCZOS).save(p)
 
 
 if __name__ == "__main__":
