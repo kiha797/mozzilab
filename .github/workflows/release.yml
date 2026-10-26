@@ -249,15 +249,24 @@ jobs:
           tar -xzf /tmp/wp.tgz -C /tmp
           export PATH="/tmp/wasm-pack-v0.15.0-x86_64-unknown-linux-musl:$PATH"
           rustup show
-          wasm-pack build --target web --release
+          # wasm-opt(최적화 도구) 내려받기 실패를 피하려고 최적화는 건너뛴다. 실패하면 오류 끝부분을 알림으로 남긴다.
+          set -o pipefail
+          if ! wasm-pack build --target web --release --no-opt 2>&1 | tee /tmp/wasm.log; then
+            echo "::error title=wasm-pack::$(tail -c 2500 /tmp/wasm.log | tr '\n' ' ')"
+            exit 1
+          fi
 
       - name: 편집 화면 만들기
         working-directory: src/rhwp-studio
         env:
           RHWP_WITHOUT_HWPCTRL: "1"
         run: |
+          set -o pipefail
           npm ci --no-audit --no-fund
-          npm run build
+          if ! npm run build 2>&1 | tee /tmp/studio.log; then
+            echo "::error title=studio::$(tail -c 2500 /tmp/studio.log | tr '\n' ' ')"
+            exit 1
+          fi
 
       - name: 다음 단계로 넘길 파일 모으기
         run: |
@@ -296,7 +305,15 @@ jobs:
         working-directory: src/mochi-desk
         env:
           RUSTFLAGS: "-C target-feature=+crt-static"
-        run: cargo build --release
+        run: |
+          cmd /c "cargo build --release > build.log 2>&1"
+          $code = $LASTEXITCODE
+          Get-Content build.log -Tail 60
+          if ($code -ne 0) {
+            $t = (Get-Content build.log -Tail 40) -join ' '
+            Write-Output "::error title=tauri::$t"
+            exit 1
+          }
 
       - name: 설치할 파일 모으기
         run: |
