@@ -313,6 +313,12 @@ def apply_hwp(root, version):
         if os.path.lexists(fonts):
             os.remove(fonts)
         shutil.copytree(os.path.join(root, "assets", "fonts"), fonts)
+    # 재배포 조건이 분명하지 않은 글꼴은 설치파일에 넣지 않는다 (편집기는 못 받은 글꼴을 건너뛰고 다음 글꼴로 보여 줌)
+    for d in (os.path.join(root, "assets", "fonts"), fonts):
+        if os.path.isdir(d) and not os.path.islink(d):
+            for n in os.listdir(d):
+                if n.startswith(("Cafe24", "Happiness")):
+                    os.remove(os.path.join(d, n))
     edit(root, f"{st}/index.html", "<title>rhwp-studio</title>", "<title>모찌한글</title>")
     edit(root, f"{st}/index.html", "rhwp-studio 문서 편집기", "모찌한글 문서 편집기")
     edit(root, f"{st}/src/ui/document-title.ts", "`${bridge.fileName} - rhwp-studio`", "`${bridge.fileName} - 모찌한글`")

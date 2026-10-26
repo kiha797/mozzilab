@@ -99,6 +99,18 @@ jobs:
           if ($p.ExitCode -ne 0) { throw "${{ matrix.name }} 실행 점검 실패 (종료 코드 $($p.ExitCode))" }
           Write-Host "${{ matrix.name }} 실행 점검 통과"
 
+      - name: 오픈소스 라이선스 넣기 (설치 폴더의 licenses)
+        run: |
+          $lic = "dist\${{ matrix.exe }}\licenses"
+          New-Item -ItemType Directory -Force $lic | Out-Null
+          python -m pip install -q pip-licenses
+          $skip = @("pyinstaller", "pyinstaller-hooks-contrib", "pip-licenses", "prettytable", "wcwidth", "pip", "setuptools", "altgraph", "pefile", "pywin32-ctypes", "packaging")
+          python -m piplicenses --from=mixed --with-authors --with-urls --with-license-file --no-license-path --format=plain-vertical --ignore-packages $skip --output-file "$lic\THIRD_PARTY_LICENSES.txt"
+          if ((Get-Item "$lic\THIRD_PARTY_LICENSES.txt").Length -lt 10000) { throw "라이선스 목록이 너무 짧아요" }
+          Copy-Item "$env:pythonLocation\LICENSE.txt" "$lic\PYTHON_LICENSE.txt"
+          Copy-Item "..\shared\OPEN_SOURCE.txt" "$lic\README.txt"
+          Get-ChildItem $lic
+
       - name: Inno Setup 준비
         run: |
           $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
@@ -276,6 +288,14 @@ jobs:
           cp -r src/rhwp-studio/dist hwpout/rhwp-studio/dist
           cp -r src/mochi-desk hwpout/mochi-desk
           cp src/LICENSE src/THIRD_PARTY_LICENSES.md hwpout/licenses/ 2>/dev/null || true
+          # 함께 넣는 글꼴의 라이선스 원문
+          mkdir -p hwpout/licenses/fonts
+          cp mochi_hwp/licenses/fonts/* hwpout/licenses/fonts/
+          cp src/assets/fonts/FONTS.md src/assets/fonts/*OFL*.txt hwpout/licenses/fonts/ 2>/dev/null || true
+          curl -sSfL --retry 3 -o hwpout/licenses/fonts/GUST-FONT-LICENSE.txt \
+            https://www.gust.org.pl/projects/e-foundry/licenses/GUST-FONT-LICENSE.txt \
+            || echo "Latin Modern Math: GUST Font License - https://www.gust.org.pl/projects/e-foundry/licenses" > hwpout/licenses/fonts/GUST-FONT-LICENSE.txt
+          if ls src/rhwp-studio/dist/fonts | grep -E '^(Cafe24|Happiness)'; then echo "::error title=fonts::재배포 조건이 불분명한 글꼴이 남아 있어요"; exit 1; fi
           du -sh hwpout
 
       - uses: actions/upload-artifact@v4
