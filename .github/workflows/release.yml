@@ -208,22 +208,14 @@ jobs:
           path: ${{ matrix.dir }}/installer_output/${{ matrix.exe }}_Setup.exe
           if-no-files-found: error
 
-  # 모찌한글: 오픈소스 HWP 편집기(rhwp)의 편집 화면을 모찌한글로 바꾸고 데스크톱 앱(Tauri)으로 묶는다
-  hwp:
-    name: 모찌한글
+  # 모찌한글 ①: 오픈소스 HWP 편집기(rhwp)의 편집 엔진(WebAssembly) · 편집 화면을 리눅스에서 만든다 (원본과 같은 방식)
+  hwp-web:
+    name: 모찌한글 (편집 화면)
     needs: version
-    runs-on: windows-latest
-    timeout-minutes: 240
-    defaults:
-      run:
-        shell: pwsh
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-
-      - name: 버전 정하기
-        id: ver
-        run: |
-          "version=${{ needs.version.outputs.version }}" >> $env:GITHUB_OUTPUT
 
       - uses: actions/setup-python@v5
         with:
@@ -235,31 +227,27 @@ jobs:
 
       - name: 원본 소스 받기 (필요한 폴더만, 고정된 커밋)
         run: |
-          $u = (Get-Content artcraft_kit/upstream.json -Raw | ConvertFrom-Json).hwp
+          repo=$(python3 -c "import json;print(json.load(open('artcraft_kit/upstream.json'))['hwp']['repo'])")
+          rev=$(python3 -c "import json;print(json.load(open('artcraft_kit/upstream.json'))['hwp']['rev'])")
+          python3 -c "import json;print('\n'.join(json.load(open('artcraft_kit/upstream.json'))['hwp']['paths']))" > paths.txt
           git init -q src
-          git -C src config core.autocrlf false
-          git -C src config core.symlinks true
-          git -C src remote add origin $u.repo
-          git -C src sparse-checkout set --no-cone @($u.paths)
-          git -C src fetch -q --depth 1 --filter=blob:none origin $u.rev
+          git -C src remote add origin "$repo"
+          git -C src sparse-checkout set --no-cone --stdin < paths.txt
+          git -C src fetch -q --depth 1 --filter=blob:none origin "$rev"
           git -C src checkout -q FETCH_HEAD
-          Get-ChildItem src | Select-Object Name
+          ls src
 
       - name: 모찌한글로 바꾸기 (이름 · 아이콘 · 로그인 · 광고 · 업데이트)
-        env:
-          PYTHONUTF8: "1"
-          PYTHONIOENCODING: "utf-8"
         run: |
-          python -m pip install -q Pillow
-          python artcraft_kit/apply.py hwp src ${{ steps.ver.outputs.version }}
+          python3 -m pip install -q Pillow
+          python3 artcraft_kit/apply.py hwp src ${{ needs.version.outputs.version }}
 
       - name: 편집 엔진(WebAssembly) 만들기
         working-directory: src
         run: |
-          $wp = "https://github.com/rustwasm/wasm-pack/releases/download/v0.15.0/wasm-pack-v0.15.0-x86_64-pc-windows-msvc.tar.gz"
-          Invoke-WebRequest $wp -OutFile wp.tgz
-          tar -xzf wp.tgz
-          $env:PATH = "$PWD\wasm-pack-v0.15.0-x86_64-pc-windows-msvc;$env:PATH"
+          curl -sSfL --retry 5 -o /tmp/wp.tgz https://github.com/rustwasm/wasm-pack/releases/download/v0.15.0/wasm-pack-v0.15.0-x86_64-unknown-linux-musl.tar.gz
+          tar -xzf /tmp/wp.tgz -C /tmp
+          export PATH="/tmp/wasm-pack-v0.15.0-x86_64-unknown-linux-musl:$PATH"
           rustup show
           wasm-pack build --target web --release
 
@@ -270,6 +258,39 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run build
+
+      - name: 다음 단계로 넘길 파일 모으기
+        run: |
+          mkdir -p hwpout/rhwp-studio hwpout/licenses
+          cp -r src/rhwp-studio/dist hwpout/rhwp-studio/dist
+          cp -r src/mochi-desk hwpout/mochi-desk
+          cp src/LICENSE src/THIRD_PARTY_LICENSES.md hwpout/licenses/ 2>/dev/null || true
+          du -sh hwpout
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hwp-web
+          path: hwpout
+          if-no-files-found: error
+
+  # 모찌한글 ②: 윈도우에서 데스크톱 앱(exe)과 설치파일을 만든다
+  hwp:
+    name: 모찌한글
+    needs: [version, hwp-web]
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: hwp-web
+          path: src
+
+      - uses: dtolnay/rust-toolchain@stable
 
       - name: 데스크톱 앱(exe) 만들기
         working-directory: src/mochi-desk
@@ -282,7 +303,7 @@ jobs:
           $dist = "mochi_hwp/dist"
           New-Item -ItemType Directory -Force "$dist/licenses" | Out-Null
           Copy-Item "src/mochi-desk/target/release/MochiHwp.exe" "$dist/MochiHwp.exe"
-          foreach ($f in @("LICENSE", "THIRD_PARTY_LICENSES.md")) { if (Test-Path "src/$f") { Copy-Item "src/$f" "$dist/licenses/$f" } }
+          Copy-Item "src/licenses/*" "$dist/licenses/"
           Invoke-WebRequest "https://go.microsoft.com/fwlink/p/?LinkId=2124703" -OutFile "$dist/MicrosoftEdgeWebview2Setup.exe"
           Get-ChildItem $dist -Recurse | Select-Object FullName, Length
 
@@ -300,7 +321,7 @@ jobs:
       - name: 설치파일(Setup.exe) 만들기
         working-directory: mochi_hwp
         run: |
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ needs.version.outputs.version }}" installer.iss
           Get-ChildItem installer_output
 
       - uses: actions/upload-artifact@v4
@@ -317,6 +338,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: out
+          pattern: Mochi*
           merge-multiple: true
 
       - name: 버전 정하기
