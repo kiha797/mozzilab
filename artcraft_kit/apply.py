@@ -307,6 +307,12 @@ def apply_hwp(root, version):
     toml = re.sub(r'members = \[[^\]]*\]', 'members = [".", "crates/*"]', toml, count=1)
     write(os.path.join(root, "Cargo.toml"), toml)
     st = "rhwp-studio"
+    # 윈도우에서 바로가기(심볼릭 링크)가 일반 파일로 풀리면 글꼴 폴더를 직접 복사해 둔다
+    fonts = os.path.join(root, st, "public", "fonts")
+    if not os.path.isdir(fonts) and os.path.isdir(os.path.join(root, "assets", "fonts")):
+        if os.path.lexists(fonts):
+            os.remove(fonts)
+        shutil.copytree(os.path.join(root, "assets", "fonts"), fonts)
     edit(root, f"{st}/index.html", "<title>rhwp-studio</title>", "<title>모찌한글</title>")
     edit(root, f"{st}/index.html", "rhwp-studio 문서 편집기", "모찌한글 문서 편집기")
     edit(root, f"{st}/src/ui/document-title.ts", "`${bridge.fileName} - rhwp-studio`", "`${bridge.fileName} - 모찌한글`")

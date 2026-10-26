@@ -117,9 +117,9 @@ export const PRODUCT_INFO: Record<string, ProductInfo> = {
     intro: "한컴오피스가 없어도 .hwp · .hwpx 문서를 열고, 고치고, 저장해요. 표 · 그림 · 수식 · 머리말/꼬리말까지 원본 그대로 보여 주고, PDF 로도 저장할 수 있어요.",
     similar: "한컴오피스 한글 · 한컴뷰어 대체",
     shots: [
-      { src: "/img/shots/hwp-editor.png", title: "한글과 비슷한 편집 화면", desc: "메뉴 · 도구 막대 · 서식 막대 · 눈금자 · 쪽 보기까지 한글(HWP)과 비슷한 배치라 바로 쓸 수 있어요." },
-      { src: "/img/shots/hwp-table.png", title: "표 · 그림 · 수식", desc: "공문서 · 보고서의 복잡한 표와 그림, 수식을 원본에 가깝게 보여 주고 고칠 수 있어요." },
-      { src: "/img/shots/hwp-menu.png", title: "익숙한 메뉴", desc: "파일 · 편집 · 보기 · 입력 · 서식 · 쪽 · 표 메뉴와 단축키가 한글과 비슷해요." },
+      { src: "/img/shots/hwp-editor.png", title: "한글과 비슷한 편집 화면", desc: "메뉴 · 도구 막대 · 서식 막대 · 눈금자까지 한글과 비슷해요. 수식 · 다단 시험지도 원본 그대로 보여요." },
+      { src: "/img/shots/hwp-table.png", title: "공문서 · 보고서도 그대로", desc: "제안요청서 · 공문 같은 문서를 글꼴 · 그림 · 테두리까지 원본에 가깝게 보여 주고 고칠 수 있어요." },
+      { src: "/img/shots/hwp-menu.png", title: "익숙한 메뉴", desc: "파일 · 편집 · 보기 · 입력 · 서식 · 쪽 · 표 메뉴와 단축키(Alt+Enter 줄 추가 등)가 한글과 비슷해요." },
     ],
     features: [
       { icon: "📄", title: "HWP · HWPX 열기", desc: "한글 5.0(.hwp) · 개방형(.hwpx) 문서, HML 일부도" },

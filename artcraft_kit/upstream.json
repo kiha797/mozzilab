@@ -14,13 +14,16 @@
     "rev": "1a76570e833917d15817415a53c09ad61ab3203f",
     "package": "rhwp",
     "paths": [
-      "/*.toml",
+      "/Cargo.toml",
       "/Cargo.lock",
       "/build.rs",
+      "/rust-toolchain.toml",
+      "/rustfmt.toml",
       "/LICENSE",
       "/THIRD_PARTY_LICENSES.md",
       "/src/",
       "/crates/",
+      "/saved/",
       "/rhwp-studio/",
       "/assets/fonts/",
       "/assets/logo/",
@@ -28,7 +31,6 @@
       "/typescript/",
       "/ttfs/",
       "/vendor/",
-      "/saved/",
       "/scripts/",
       "/rhwp-shared/"
     ]
