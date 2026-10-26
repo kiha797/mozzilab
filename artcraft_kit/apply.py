@@ -329,6 +329,60 @@ def apply_hwp(root, version):
                                ("rhwp checks", "MochiHwp checks"), ("rhwp uses your", "MochiHwp uses your")))):
         for a, b in pairs:
             edit(root, f"{st}/src/i18n/locales/{loc}.ts", a, b, count=0)
+    # 타자 속도: 글자 하나 잴 때마다 글꼴 이름을 소문자로 바꿔 'KoPub' 인지 4번씩 찾던 것을
+    # 'kopub' 글자가 아예 없으면 바로 건너뛰게 한다 (결과는 같고 훨씬 빠름)
+    tm = "src/renderer/layout/text_measurement.rs"
+    edit(root, tm, "fn kopub_char_width(primary_name: &str, c: char, font_size: f64) -> Option<f64> {\n",
+         "fn may_be_kopub(name: &str) -> bool {\n"
+         "    name.as_bytes().windows(5).any(|w| w.eq_ignore_ascii_case(b\"kopub\"))\n"
+         "}\n\n"
+         "fn kopub_char_width(primary_name: &str, c: char, font_size: f64) -> Option<f64> {\n"
+         "    if !may_be_kopub(primary_name) {\n        return None;\n    }\n")
+    edit(root, tm, "    let primary = style.font_family.split(',').next()?.trim();\n    let lower = primary.to_lowercase();\n",
+         "    let primary = style.font_family.split(',').next()?.trim();\n"
+         "    if !may_be_kopub(primary) {\n        return None;\n    }\n    let lower = primary.to_lowercase();\n")
+    # 인쇄: 프로그램 안에서는 새 창(팝업)을 열 수 없으므로, 'PDF로 저장'처럼 화면 안 숨은 틀에
+    # 문서를 그려 놓고 바로 인쇄 창(미리보기 · 프린터 선택)을 띄운다
+    fc = f"{st}/src/command/commands/file.ts"
+    edit(root, fc, "async function runPrintPreview(services: CommandServices): Promise<void> {\n",
+         "async function runPrintPreview(services: CommandServices): Promise<void> {\n"
+         "  if ((window as any).__TAURI_INTERNALS__) return runDesktopPrint(services);\n"
+         "  return runPrintPreviewPopup(services);\n"
+         "}\n\n"
+         "async function runDesktopPrint(services: CommandServices): Promise<void> {\n"
+         "  if (!beginPrintJob()) return;\n"
+         "  const wasm = services.wasm;\n"
+         "  const statusEl = document.getElementById('sb-message');\n"
+         "  const originalStatus = statusEl?.textContent || '';\n"
+         "  let surface: PrintSurface | null = null;\n"
+         "  let originalDocumentTitle: string | null = null;\n"
+         "  try {\n"
+         "    flushDeferredPaginationBeforeExplicitOutput(services, 'print');\n"
+         "    const pageCount = wasm.pageCount;\n"
+         "    if (pageCount === 0) return;\n"
+         "    if (statusEl) statusEl.textContent = printProgressText('print', 0, pageCount);\n"
+         "    await waitForHostPaint();\n"
+         "    surface = await createPrintSurface();\n"
+         "    const printPages = await preparePrintPages(services, 'print', (current, total) => {\n"
+         "      if (statusEl) statusEl.textContent = printProgressText('print', current, total);\n"
+         "    });\n"
+         "    setupPrintDocument(surface.document, wasm.fileName, printPages);\n"
+         "    await waitForPrintSurfaceReady(surface);\n"
+         "    originalDocumentTitle = document.title;\n"
+         "    document.title = pdfPrintTitle(wasm.fileName);\n"
+         "    surface.window.print();\n"
+         "  } catch (err) {\n"
+         "    const msg = err instanceof Error ? err.message : String(err);\n"
+         "    console.error('[file:print]', msg);\n"
+         "    showToast({ message: t('command.file.runPrintPreview.message.xc4753b', { p1: msg }), durationMs: 5000 });\n"
+         "  } finally {\n"
+         "    if (originalDocumentTitle !== null) document.title = originalDocumentTitle;\n"
+         "    surface?.dispose();\n"
+         "    printJobActive = false;\n"
+         "    if (statusEl) statusEl.textContent = originalStatus;\n"
+         "  }\n"
+         "}\n\n"
+         "async function runPrintPreviewPopup(services: CommandServices): Promise<void> {\n")
     # 데스크톱 앱 안에서는 웹 앱 설치(PWA)가 필요 없다
     edit(root, f"{st}/vite.config.ts", "    VitePWA({", "    false && VitePWA({")
     pkg = read(os.path.join(root, st, "package.json"))
