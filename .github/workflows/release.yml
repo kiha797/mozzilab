@@ -235,6 +235,8 @@ jobs:
           git -C src sparse-checkout set --no-cone --stdin < paths.txt
           git -C src fetch -q --depth 1 --filter=blob:none origin "$rev"
           git -C src checkout -q FETCH_HEAD
+          # 필요한 폴더만 받은 저장소라 cargo 가 git 정보를 읽다 멈춘다 → git 정보는 지운다
+          rm -rf src/.git
           ls src
 
       - name: 모찌한글로 바꾸기 (이름 · 아이콘 · 로그인 · 광고 · 업데이트)
