@@ -78,8 +78,8 @@ class Controller(QObject):
         self.account.refresh()
         self.ads.fetch()
         self.sync_timer = QTimer(self)
-        self.sync_timer.timeout.connect(lambda: (self.account.refresh(), self.ads.fetch()))
-        self.sync_timer.start(3 * 60 * 60 * 1000)      # 3시간마다 구독 상태·광고 새로 확인
+        self.sync_timer.timeout.connect(self.account.refresh)
+        self.sync_timer.start(10 * 60 * 1000)      # 10분마다 구독 상태 확인 (관리자 화면에서 바꾼 유료 여부가 바로 반영되게)
         # 자동 업데이트: 켜고 8초 뒤 · 로그인할 때 · 3시간마다 확인하고 묻지 않고 설치
         # (결과창에서 편집 중이거나 캡처 중이면 끝날 때까지 기다린다)
         self.updater = Updater(self.cfg, on_quit=self.quit, busy=self._busy)
@@ -100,8 +100,10 @@ class Controller(QObject):
         self.ads.fetch()
         if self.editor:
             self.editor.update_account()
-        if self.account.logged_in:
+        logged_in = self.account.logged_in
+        if logged_in and not getattr(self, "_was_logged_in", False):
             self.updater.check()          # 로그인하면 바로 새 버전 확인 → 자동 업데이트
+        self._was_logged_in = logged_in
 
     def _busy(self):
         app = QApplication.instance()
@@ -234,6 +236,7 @@ class Controller(QObject):
 
     def show_editor(self):
         self.launcher.hide()
+        self.account.refresh_if_old(60)   # 결과창을 열 때 유료 여부를 다시 확인 (1분에 한 번까지)
         ed = self.ensure_editor()
         files = self.history.files()
         if files and ed.current_path is None:

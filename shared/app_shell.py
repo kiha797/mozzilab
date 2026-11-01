@@ -128,8 +128,8 @@ class MozziWindow(QMainWindow):
         self.account.refresh()
         self.ads.fetch()
         self.sync_timer = QTimer(self)
-        self.sync_timer.timeout.connect(lambda: (self.account.refresh(), self.ads.fetch()))
-        self.sync_timer.start(3 * 60 * 60 * 1000)
+        self.sync_timer.timeout.connect(self.account.refresh)
+        self.sync_timer.start(10 * 60 * 1000)      # 10분마다 구독 상태 확인 (관리자 화면에서 바꾼 유료 여부가 바로 반영되게)
 
         # 자동 업데이트: 켜고 8초 뒤 · 로그인할 때 · 3시간마다 확인하고 묻지 않고 설치 + 왼쪽 아래 '업데이트 확인'
         self.updater = Updater(self.cfg, on_quit=self.close,
@@ -187,8 +187,10 @@ class MozziWindow(QMainWindow):
     def _account_changed(self):
         self.ads.fetch()
         self.update_account()
-        if self.account.logged_in:
+        logged_in = self.account.logged_in
+        if logged_in and not getattr(self, "_was_logged_in", False):
             self.updater.check()          # 로그인하면 바로 새 버전 확인 → 자동 업데이트
+        self._was_logged_in = logged_in
 
     def update_account(self):
         a = self.account

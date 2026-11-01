@@ -170,6 +170,12 @@ class Account(QObject):
 
         self.api.request("GET", "/api/me", token=token, callback=done)
 
+    def refresh_if_old(self, seconds):
+        """마지막 확인 뒤 seconds 초가 지났으면 다시 확인한다."""
+        checked = _parse(self.data.get("checked_at"))
+        if not checked or datetime.now() - checked > timedelta(seconds=seconds):
+            self.refresh()
+
     def logout(self):
         if self.logged_in:
             self.api.request("POST", "/api/logout", token=self.data["token"])

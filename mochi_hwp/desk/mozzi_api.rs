@@ -73,7 +73,7 @@ pub fn tick() -> bool {
         if s.update.as_ref().and_then(|u| u.install_at).is_some_and(|t| Instant::now() >= t) {
             s.install();
         }
-        if s.last_sync.elapsed() > Duration::from_secs(3 * 3600) {
+        if s.last_sync.elapsed() > SYNC_EVERY {
             s.last_sync = Instant::now();
             s.refresh();
         }

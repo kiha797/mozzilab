@@ -25,6 +25,8 @@ const ACCENT: Color32 = Color32::from_rgb(0xff, 0x6f, 0x91);
 const OFFLINE_GRACE_SECS: u64 = 7 * 24 * 3600;
 /// 켜져 있는 동안 새 버전을 확인하는 간격
 const UPDATE_EVERY: Duration = Duration::from_secs(3 * 3600);
+/// 구독 상태 · 광고를 다시 받는 간격 (관리자 화면에서 바꾼 유료 여부가 10분 안에 반영되게)
+const SYNC_EVERY: Duration = Duration::from_secs(10 * 60);
 
 fn now() -> u64 {
     SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_secs()).unwrap_or(0)
@@ -642,7 +644,7 @@ pub fn show(ctx: &Context) {
         if s.update.as_ref().and_then(|u| u.install_at).is_some_and(|t| Instant::now() >= t) {
             s.install();
         }
-        if s.last_sync.elapsed() > Duration::from_secs(3 * 3600) {
+        if s.last_sync.elapsed() > SYNC_EVERY {
             s.last_sync = Instant::now();
             s.refresh();
         }
