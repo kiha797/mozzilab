@@ -9,6 +9,8 @@ import apiRoutes from "./routes/api";
 import siteRoutes from "./routes/site";
 import { ErrorPage } from "./views/pages";
 
+export { LiveHub } from "./live";
+
 const app = new Hono<AppEnv>();
 
 // 모든 요청: DB 준비 → 설정 → 로그인 세션 → 폼 보안(CSRF) 확인

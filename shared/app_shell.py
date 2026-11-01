@@ -10,6 +10,7 @@ from PySide6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMainWindow, QMenu, 
                                QWidget)
 
 from account import Account, Api
+from live import LiveLink
 from ads import AdBlock, AdManager, PopupAd
 from appconfig import AppConfig
 from toast import show_toast
@@ -127,6 +128,7 @@ class MozziWindow(QMainWindow):
         self.update_account()
         self.account.refresh()
         self.ads.fetch()
+        self.live = LiveLink(self.account)   # 유료 전환 · 기기 해제를 서버가 바로 알려 준다
         self.sync_timer = QTimer(self)
         self.sync_timer.timeout.connect(self.account.refresh)
         self.sync_timer.start(10 * 60 * 1000)      # 10분마다 구독 상태 확인 (관리자 화면에서 바꾼 유료 여부가 바로 반영되게)

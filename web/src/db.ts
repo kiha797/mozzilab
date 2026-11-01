@@ -3,6 +3,7 @@ import { hashPassword } from "./auth";
 
 export interface Env {
   DB: D1Database;
+  LIVE: DurableObjectNamespace;
   ASSETS: Fetcher;
   SITE_URL: string;
   COMPANY_NAME?: string;

@@ -5,6 +5,7 @@ import { issueBillingKey, startSubscription, tossEnabled } from "../billing";
 import { activeDevices, getUserByEmail, now, validSubscription, fmt, type DeviceCode, type Payment, type Product, type Subscription, type User } from "../db";
 import { type AppEnv, type C, flashRedirect, form, login, pageCtx, siteUrl } from "../ctx";
 import * as V from "../views/pages";
+import { notifyUser } from "../live";
 
 const site = new Hono<AppEnv>();
 
@@ -161,6 +162,7 @@ site.post("/mypage/devices/:id/revoke", async (c) => {
     .first<{ id: number; device_name: string }>();
   if (!dev) return c.notFound();
   await c.env.DB.prepare("UPDATE devices SET revoked = 1 WHERE id = ?").bind(dev.id).run();
+  await notifyUser(c.env, c.get("user")!.id);
   return flashRedirect(c, "success", `'${dev.device_name}' 기기의 로그인을 해제했습니다.`, "/mypage");
 });
 

@@ -144,7 +144,12 @@ def install_mozzi(root, app, version, ui_crate):
     if "ureq" not in s:
         s = s.rstrip() + ('\n\n# 모찌랩 로그인 · 광고 · 자동 업데이트 (mozzi.rs)\n'
                           '[target.\'cfg(not(target_arch = "wasm32"))\'.dependencies.ureq]\n'
-                          'version = "3.4"\ndefault-features = false\nfeatures = ["rustls", "platform-verifier"]\n')
+                          'version = "3.4"\ndefault-features = false\nfeatures = ["rustls", "platform-verifier"]\n'
+                          '\n# 실시간 알림 연결 (유료 전환 · 기기 해제를 바로 반영)\n'
+                          '[target.\'cfg(not(target_arch = "wasm32"))\'.dependencies.tungstenite]\n'
+                          'version = "0.27"\ndefault-features = false\nfeatures = ["handshake", "rustls-tls-native-roots"]\n'
+                          '[target.\'cfg(not(target_arch = "wasm32"))\'.dependencies.rustls]\n'
+                          'version = "0.23"\ndefault-features = false\nfeatures = ["ring", "std", "tls12"]\n')
         write(toml, s)
 
 

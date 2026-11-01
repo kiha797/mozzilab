@@ -6,6 +6,7 @@ import { addMonths, now, premiumUserIds, setSetting, validSubscription,
   type Ad, type Device, type Payment, type Product, type Subscription, type User } from "../db";
 import { type AppEnv, type C, flashRedirect, form, pageCtx, pageOf, PER_PAGE } from "../ctx";
 import * as A from "../views/admin";
+import { notifyUser } from "../live";
 import { ErrorPage } from "../views/pages";
 
 const admin = new Hono<AppEnv>();
@@ -105,6 +106,7 @@ admin.post("/users/:id/update", async (c) => {
   const f = await form(c);
   await c.env.DB.prepare("UPDATE users SET name = ?, role = ?, status = ?, memo = ? WHERE id = ?")
     .bind(f.name || "", f.role === "admin" ? "admin" : "user", f.status === "suspended" ? "suspended" : "active", f.memo || "", id).run();
+  c.executionCtx.waitUntil(notifyUser(c.env, id));   // 정지하면 PC 프로그램도 바로 로그아웃
   return flashRedirect(c, "success", "회원 정보를 저장했습니다.", `/admin/users/${id}`);
 });
 
@@ -123,6 +125,7 @@ admin.post("/users/:id/grant", async (c) => {
       VALUES (?, 'manual', 'canceled', 0, ?, ?, ?, ?)`).bind(id, t, addMonths(t, months), f.note || "관리자 부여", t).run();
     msg = `${months}개월 이용권을 부여했습니다. (자동결제 없음)`;
   }
+  await notifyUser(c.env, id);   // 켜져 있는 PC 프로그램의 광고가 바로 꺼진다
   return flashRedirect(c, "success", msg, `/admin/users/${id}`);
 });
 
@@ -133,12 +136,14 @@ admin.post("/users/:id/end-sub", async (c) => {
     const t = now();
     await c.env.DB.prepare("UPDATE subscriptions SET status = 'expired', current_period_end = ?, canceled_at = ? WHERE id = ?").bind(t, t, sub.id).run();
   }
+  await notifyUser(c.env, id);
   return flashRedirect(c, "success", "구독을 즉시 종료했습니다. (환불은 결제 내역에서 따로 처리하세요)", `/admin/users/${id}`);
 });
 
 admin.post("/users/:id/revoke-devices", async (c) => {
   const id = Number(c.req.param("id"));
   await c.env.DB.prepare("UPDATE devices SET revoked = 1 WHERE user_id = ?").bind(id).run();
+  await notifyUser(c.env, id);
   return flashRedirect(c, "success", "모든 PC 로그인을 해제했습니다.", `/admin/users/${id}`);
 });
 
@@ -184,7 +189,10 @@ admin.get("/devices", async (c) => {
 });
 
 admin.post("/devices/:id/revoke", async (c) => {
-  await c.env.DB.prepare("UPDATE devices SET revoked = 1 WHERE id = ?").bind(Number(c.req.param("id"))).run();
+  const devId = Number(c.req.param("id"));
+  await c.env.DB.prepare("UPDATE devices SET revoked = 1 WHERE id = ?").bind(devId).run();
+  const dev = await c.env.DB.prepare("SELECT user_id FROM devices WHERE id = ?").bind(devId).first<{ user_id: number }>();
+  if (dev) await notifyUser(c.env, dev.user_id);
   return flashRedirect(c, "success", "기기 로그인을 해제했습니다.", c.req.header("Referer") || "/admin/devices");
 });
 

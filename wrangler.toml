@@ -30,6 +30,15 @@ binding = "DB"
 database_name = "mozzilab-db"
 database_id = "de5a754b-03d1-4a1d-b560-8b953910d979"
 
+# PC 프로그램 실시간 알림 통로 (유료 전환 · 기기 해제가 켜져 있는 프로그램에 바로 반영되게)
+[[durable_objects.bindings]]
+name = "LIVE"
+class_name = "LiveHub"
+
+[[migrations]]
+tag = "v1-live"
+new_sqlite_classes = ["LiveHub"]
+
 # 매일 00:00 UTC = 한국 시간 오전 9시 정기결제 실행
 [triggers]
 crons = ["0 0 * * *"]

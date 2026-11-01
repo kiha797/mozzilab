@@ -2,6 +2,7 @@
 //! - 로그인: 웹에서 승인하는 '기기 연결' 방식 (/api/device/start → /api/device/poll → /api/me)
 //! - 광고: 무료 사용자에게 제목 표시줄 오른쪽 배너 + 저장 후 팝업 (/api/ads), 모찌 플러스 구독자는 광고 없음
 //! - 자동 업데이트: GitHub 최신 릴리스의 설치파일을 받아 조용히 설치하고 다시 켠다
+//! - 실시간 알림: 로그인해 있는 동안 /api/live 에 연결해 두고, 유료 전환 · 기기 해제를 바로 반영한다
 //!
 //! 이 파일은 mozzilab 저장소 artcraft_kit/mozzi.rs 가 원본이며, 빌드할 때 각 앱에 복사된다.
 //! (@@ 로 둘러싼 값은 빌드 스크립트가 앱마다 바꿔 넣는다.)
@@ -9,6 +10,7 @@
 
 use std::path::PathBuf;
 use std::sync::mpsc::{Receiver, Sender, channel};
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
@@ -128,6 +130,8 @@ enum Msg {
     Release(bool, u16, Value),
     Downloaded(Result<PathBuf, String>),
     Progress(f32),
+    /// 서버가 '계정 상태가 바뀌었어요' 라고 알려 옴 → 바로 다시 확인
+    Live,
 }
 
 fn spawn(tx: &Sender<Msg>, f: impl FnOnce() -> Msg + Send + 'static) {
@@ -185,6 +189,7 @@ struct State {
     refresh_needed: bool,
     last_update_check: Instant,
     checking: bool,
+    live_token: Option<String>,
 }
 
 fn house_ads() -> Value {
@@ -233,6 +238,7 @@ impl State {
             refresh_needed: false,
             last_update_check: Instant::now(),
             checking: false,
+            live_token: None,
         }
     }
 
@@ -422,6 +428,21 @@ impl State {
                     u.error = e;
                 }
             }
+            Msg::Live => self.refresh(),
+        }
+        self.live_sync();
+    }
+
+    /// 로그인 · 로그아웃에 맞춰 실시간 알림 연결을 열거나 닫는다
+    fn live_sync(&mut self) {
+        let token = self.token();
+        if token == self.live_token {
+            return;
+        }
+        self.live_token = token.clone();
+        match token {
+            Some(t) => live_start(self.tx.clone(), t),
+            None => live_stop(),
         }
     }
 
@@ -492,6 +513,88 @@ fn state() -> &'static Mutex<State> {
 fn with<R>(f: impl FnOnce(&mut State) -> R) -> R {
     let mut g = state().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     f(&mut g)
+}
+
+// ---------------------------------------------------------------- 실시간 알림 (웹소켓)
+/// 연결 세대: 로그인 · 로그아웃할 때마다 바뀌어서 예전 연결 스레드는 스스로 끝난다
+static LIVE_GEN: AtomicU64 = AtomicU64::new(0);
+/// 공유기 · 방화벽이 조용한 연결을 끊지 않도록 보내는 신호 간격
+const LIVE_PING: Duration = Duration::from_secs(45);
+
+fn live_alive(generation: u64) -> bool {
+    LIVE_GEN.load(Ordering::SeqCst) == generation
+}
+
+fn live_stop() {
+    LIVE_GEN.fetch_add(1, Ordering::SeqCst);
+}
+
+fn live_start(tx: Sender<Msg>, token: String) {
+    // 프로그램 안에 암호화 부품이 여러 개(ring · aws-lc) 들어 있으면 어느 것을 쓸지 정해 줘야 한다
+    let _ = rustls::crypto::ring::default_provider().install_default();
+    let generation = LIVE_GEN.fetch_add(1, Ordering::SeqCst) + 1;
+    let _ = std::thread::Builder::new().name("mozzilab-live".into()).spawn(move || {
+        let mut tries = 0usize;
+        while live_alive(generation) {
+            if live_once(&tx, &token, generation, tries > 0) {
+                tries = 0;
+            }
+            // 끊기면 3초 → 10초 → 30초 → 1분 뒤 다시 연결 (그동안은 10분마다 확인하는 방식이 대신한다)
+            let wait = [3u64, 10, 30, 60][tries.min(3)];
+            tries += 1;
+            for _ in 0..wait {
+                if !live_alive(generation) {
+                    return;
+                }
+                std::thread::sleep(Duration::from_secs(1));
+            }
+        }
+    });
+}
+
+/// 한 번 연결해서 끊길 때까지 알림을 받는다. 연결에 성공했으면 true
+fn live_once(tx: &Sender<Msg>, token: &str, generation: u64, reconnect: bool) -> bool {
+    use tungstenite::client::IntoClientRequest;
+    use tungstenite::stream::MaybeTlsStream;
+    use tungstenite::Message;
+    let url = format!("{}/api/live", SERVER.replacen("https://", "wss://", 1).replacen("http://", "ws://", 1));
+    let Ok(mut req) = url.into_client_request() else { return false };
+    let Ok(auth) = format!("Bearer {token}").parse() else { return false };
+    req.headers_mut().insert("Authorization", auth);
+    let Ok((mut ws, _)) = tungstenite::connect(req) else { return false };
+    // 몇 초마다 읽기를 멈추고 로그아웃 여부 · 신호 보낼 때를 확인한다
+    let tick = Some(Duration::from_secs(5));
+    match ws.get_mut() {
+        MaybeTlsStream::Plain(s) => drop(s.set_read_timeout(tick)),
+        MaybeTlsStream::Rustls(s) => drop(s.get_mut().set_read_timeout(tick)),
+        _ => {}
+    }
+    if reconnect {
+        let _ = tx.send(Msg::Live); // 끊겨 있던 동안 바뀐 것이 있을 수 있으니 한 번 확인
+    }
+    let mut last_ping = Instant::now();
+    loop {
+        if !live_alive(generation) {
+            let _ = ws.close(None);
+            return true;
+        }
+        if last_ping.elapsed() > LIVE_PING {
+            last_ping = Instant::now();
+            if ws.send(Message::Text("ping".into())).is_err() {
+                return true;
+            }
+        }
+        match ws.read() {
+            Ok(Message::Text(t)) if t.as_str() != "pong" => {
+                let _ = tx.send(Msg::Live);
+            }
+            Ok(Message::Close(_)) => return true,
+            Ok(_) => {}
+            Err(tungstenite::Error::Io(e))
+                if matches!(e.kind(), std::io::ErrorKind::WouldBlock | std::io::ErrorKind::TimedOut) => {}
+            Err(_) => return true,
+        }
+    }
 }
 
 fn hex(s: Option<&str>, fallback: Color32) -> Color32 {

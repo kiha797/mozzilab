@@ -2,6 +2,7 @@
 // TOSS_CLIENT_KEY / TOSS_SECRET_KEY 가 없으면 '테스트 모드'(가상 결제)
 import { addMonths, getSettings, now, type Env, type Payment, type Subscription, type User } from "./db";
 import { displayName, randomToken } from "./auth";
+import { notifyUser } from "./live";
 
 const TOSS_API = "https://api.tosspayments.com/v1";
 
@@ -53,6 +54,7 @@ export async function charge(env: Env, sub: Subscription): Promise<{ ok: boolean
     stmts.push(env.DB.prepare("UPDATE subscriptions SET status = 'past_due' WHERE id = ?").bind(sub.id));
   }
   await env.DB.batch(stmts);
+  await notifyUser(env, sub.user_id);
   return { ok: res.ok, reason: res.reason };
 }
 
@@ -65,7 +67,10 @@ export async function startSubscription(env: Env, user: User, method: string, bi
     .bind(user.id, method, billingKey, customerKey, card, Number(s.price), t, t, t).run();
   const sub = await env.DB.prepare("SELECT * FROM subscriptions WHERE id = ?").bind(r.meta.last_row_id).first<Subscription>();
   const res = await charge(env, sub!);
-  if (!res.ok) await env.DB.prepare("UPDATE subscriptions SET status = 'expired' WHERE id = ?").bind(sub!.id).run();
+  if (!res.ok) {
+    await env.DB.prepare("UPDATE subscriptions SET status = 'expired' WHERE id = ?").bind(sub!.id).run();
+    await notifyUser(env, user.id);
+  }
   return res;
 }
 
@@ -87,7 +92,10 @@ export async function renewDue(env: Env) {
   const subs = (await env.DB.prepare("SELECT * FROM subscriptions WHERE status IN ('active','canceled','past_due')").all<Subscription>()).results;
   for (const sub of subs) {
     if (sub.current_period_end && sub.current_period_end > t && sub.status !== "past_due") continue;
-    const expire = () => env.DB.prepare("UPDATE subscriptions SET status = 'expired' WHERE id = ?").bind(sub.id).run();
+    const expire = async () => {
+      await env.DB.prepare("UPDATE subscriptions SET status = 'expired' WHERE id = ?").bind(sub.id).run();
+      await notifyUser(env, sub.user_id);
+    };
     if (sub.status === "canceled" || sub.method === "manual") { await expire(); result.expired++; continue; }
     if (sub.status === "past_due" && sub.current_period_end &&
         Date.now() - new Date(sub.current_period_end).getTime() >= 3 * 86400_000) { await expire(); result.expired++; continue; }

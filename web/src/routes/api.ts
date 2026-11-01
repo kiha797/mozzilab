@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { randomToken, sha256 } from "../auth";
 import { adRunning, addMinutes, now, validSubscription, type Ad, type Device, type DeviceCode, type Product, type User } from "../db";
 import { type AppEnv, type C, siteUrl } from "../ctx";
+import { connectLive } from "../live";
 
 const api = new Hono<AppEnv>();
 const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // 헷갈리는 0/O, 1/I 제외
@@ -65,6 +66,14 @@ api.get("/api/me", async (c) => {
     expires_at: sub?.current_period_end ? new Date(new Date(sub.current_period_end).getTime() + 9 * 3600_000).toISOString().slice(0, 19) : null,
     mypage_url: `${base}/mypage`, pricing_url: `${base}/pricing`,
   });
+});
+
+// PC 프로그램이 켜져 있는 동안 연결해 두는 실시간 알림 통로 (유료 전환 등이 바로 반영되게)
+api.get("/api/live", async (c) => {
+  if (c.req.header("Upgrade") !== "websocket") return c.json({ error: "websocket only" }, 426);
+  const b = await bearer(c);
+  if (!b) return c.json({ error: "unauthorized" }, 401);
+  return connectLive(c.env, b.user.id, c.req.raw);
 });
 
 api.post("/api/logout", async (c) => {
