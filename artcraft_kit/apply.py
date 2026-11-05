@@ -394,6 +394,11 @@ def apply_hwp(root, version):
          "  }\n"
          "}\n\n"
          "async function runPrintPreviewPopup(services: CommandServices): Promise<void> {\n")
+    # 웹 버전은 홈페이지의 /hwp/ 아래에서 열리므로, 예제 문서 주소를 화면 주소 기준으로 바꾼다
+    edit(root, f"{st}/src/core/wasm-bridge.ts", "const url = `/samples/${name}`;",
+         "const url = `${import.meta.env.BASE_URL}samples/${name}`;")
+    edit(root, f"{st}/src/main.ts", "await fetch(`/samples/${encodeURI(path)}`);",
+         "await fetch(`${import.meta.env.BASE_URL}samples/${encodeURI(path)}`);")
     # 데스크톱 앱 안에서는 웹 앱 설치(PWA)가 필요 없다
     edit(root, f"{st}/vite.config.ts", "    VitePWA({", "    false && VitePWA({")
     pkg = read(os.path.join(root, st, "package.json"))

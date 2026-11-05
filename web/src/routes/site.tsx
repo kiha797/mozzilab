@@ -20,6 +20,14 @@ site.get("/", async (c) => {
   return c.html(<V.Home c={pageCtx(c)} products={products} />);
 });
 
+// 모찌한글 웹(/hwp/)이 묻는 로그인 · 유료 여부 (홈페이지 로그인을 그대로 씀)
+site.get("/hwp-me", (c) => {
+  const u = c.get("user");
+  return c.json({ logged_in: !!u, name: u ? (u.name || u.email.split("@")[0]) : "", premium: c.get("premium") },
+    200, { "Cache-Control": "no-store" });
+});
+site.get("/hwp", (c) => c.redirect("/hwp/", 301));
+
 site.get("/products/:slug", async (c) => {
   const p = await c.env.DB.prepare("SELECT * FROM products WHERE slug = ?").bind(c.req.param("slug")).first<Product>();
   if (!p) return c.notFound();

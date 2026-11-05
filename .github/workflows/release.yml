@@ -304,6 +304,25 @@ jobs:
           path: hwpout
           if-no-files-found: error
 
+      - name: 모찌한글 웹 버전 만들기 (홈페이지 /hwp/ · 핸드폰에서도 열림)
+        working-directory: src/rhwp-studio
+        env:
+          RHWP_WITHOUT_HWPCTRL: "1"
+        run: |
+          if ! npx vite build --base /hwp/ --outDir dist-web 2>&1 | tee /tmp/web.log; then
+            echo "::error title=hwp-web::$(tail -c 2500 /tmp/web.log | tr '\n' ' ')"
+            exit 1
+          fi
+          python3 ../../mochi_hwp/web/make_web.py dist-web
+          (cd dist-web && zip -qr ../../../MochiHwp_Web.zip .)
+          ls -la ../../MochiHwp_Web.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MochiHwp_Web
+          path: MochiHwp_Web.zip
+          if-no-files-found: error
+
   # 모찌한글 ②: 윈도우에서 데스크톱 앱(exe)과 설치파일을 만든다
   hwp:
     name: 모찌한글
@@ -371,8 +390,11 @@ jobs:
 
   release:
     name: 다운로드 페이지에 올리기
-    needs: [version, build, craft, hwp]
+    needs: [version, build, craft, hwp, hwp-web]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -404,4 +426,11 @@ jobs:
             [필수] 설치된 프로그램은 자동으로 이 버전으로 업데이트됩니다.
 
             Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 광고 없이 쓰기: https://mozzilab.labelpos.com/pricing
-          files: out/*.exe
+          files: |
+            out/*.exe
+            out/MochiHwp_Web.zip
+
+      - name: 홈페이지에 모찌한글 웹 새 버전 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --repo ${{ github.repository }} --ref main

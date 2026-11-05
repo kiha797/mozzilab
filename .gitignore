@@ -8,6 +8,8 @@ Thumbs.db
 # 웹사이트 (Cloudflare)
 web/node_modules/
 web/.wrangler/
+# 모찌한글 웹 (배포할 때 최신 릴리스에서 받아 옴)
+web/public/hwp/
 web/.dev.vars
 
 # PC 프로그램 빌드 결과 (모찌캡처·모찌PDF·모찌압축)

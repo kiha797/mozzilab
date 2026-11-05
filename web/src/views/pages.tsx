@@ -42,7 +42,8 @@ export const Home = ({ c, products }: { c: PageCtx; products: Product[] }) => (
               <p>{p.tagline}</p>
               {p.status === "released" ? (
                 <><a class="btn btn-pink btn-sm" href={`/download/${p.slug}`}>무료 다운로드</a>
-                  <a class="btn btn-sm btn-ghost" href={`/products/${p.slug}`}>자세히</a></>
+                  <a class="btn btn-sm btn-ghost" href={`/products/${p.slug}`}>자세히</a>
+                  {p.slug === "hwp" && <a class="btn btn-sm btn-ghost" href="/hwp/">📱 웹에서 열기</a>}</>
               ) : <a class="btn btn-sm" href={`/products/${p.slug}`}>출시 알림 받기</a>}
             </div>
           ))}
@@ -86,7 +87,9 @@ export const ProductPage = ({ c, p }: { c: PageCtx; p: Product }) => {
             <p>{info?.intro || p.tagline}</p>
             {released ? (
               <><a class="btn btn-pink btn-lg" href={`/download/${p.slug}`}>무료 다운로드 (v{p.version})</a>
-                <p class="small muted" style="margin-top:12px">Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 새 버전은 자동으로 업데이트돼요</p></>
+                {p.slug === "hwp" && <a class="btn btn-lg btn-ghost" href="/hwp/" style="margin-left:8px">📱 핸드폰 · 브라우저에서 바로 열기</a>}
+                <p class="small muted" style="margin-top:12px">Windows 10 / 11 · 무료 버전은 광고가 표시됩니다 · 새 버전은 자동으로 업데이트돼요</p>
+                {p.slug === "hwp" && <p class="small muted">설치 없이 아이폰 · 안드로이드 · 맥에서도 열 수 있어요. 문서는 서버로 올라가지 않고 내 기기 안에서만 열려요.</p>}</>
             ) : <span class="badge badge-gray" style="font-size:15px;padding:8px 16px">🛠 열심히 만드는 중이에요</span>}
           </div>
           {info?.shots[0] ? (
