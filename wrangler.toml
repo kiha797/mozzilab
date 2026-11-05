@@ -14,6 +14,12 @@ keep_vars = true
 # 도메인 연결 전에도 접속할 수 있는 예비 주소 (https://mozzilab.<계정이름>.workers.dev)
 workers_dev = true
 
+# 배포 직전: 모찌한글 웹 버전(핸드폰 · 브라우저용)을 다운로드 페이지에서 받아 web/public/hwp 에 둔다
+# (받을 버전은 web/hwp-version.txt — 설치파일 배포가 끝나면 자동으로 바뀌고, 그 변경으로 홈페이지가 다시 배포됨)
+[build]
+# (저장소 맨 위에서 배포하든 web 폴더에서 배포하든 같은 스크립트를 찾게)
+command = "test -f web/scripts/fetch-hwp-web.mjs && node web/scripts/fetch-hwp-web.mjs || node scripts/fetch-hwp-web.mjs"
+
 # 그림·CSS 같은 고정 파일
 [assets]
 directory = "./web/public"

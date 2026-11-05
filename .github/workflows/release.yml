@@ -430,7 +430,22 @@ jobs:
             out/*.exe
             out/MochiHwp_Web.zip
 
+      # 홈페이지가 새 웹 버전을 받도록 버전 번호를 바꿔 main 에 올린다 → Cloudflare 가 홈페이지를 다시 배포
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: repo
       - name: 홈페이지에 모찌한글 웹 새 버전 올리기
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh workflow run deploy.yml --repo ${{ github.repository }} --ref main
+        working-directory: repo
+        run: |
+          git config user.name "Claude"
+          git config user.email "noreply@anthropic.com"
+          for i in 1 2 3 4; do
+            git pull -q --rebase origin main
+            echo "${{ steps.ver.outputs.version }}" > web/hwp-version.txt
+            git add web/hwp-version.txt
+            git diff --cached --quiet && break
+            git commit -q -m "모찌한글 웹 v${{ steps.ver.outputs.version }} 을 홈페이지에 올리기"
+            git push -q origin HEAD:main && break
+            sleep $((i * 5))
+          done

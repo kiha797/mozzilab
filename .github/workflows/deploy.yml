@@ -41,17 +41,6 @@ jobs:
           cache-dependency-path: web/package-lock.json
       - name: 프로그램 설치
         run: npm ci --no-fund --no-audit
-      - name: 모찌한글 웹 받기 (최신 설치파일과 같은 버전 → /hwp/)
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          rm -rf public/hwp /tmp/hwpweb && mkdir -p /tmp/hwpweb
-          if gh release download --repo ${{ github.repository }} --pattern MochiHwp_Web.zip --dir /tmp/hwpweb; then
-            mkdir -p public/hwp && unzip -q /tmp/hwpweb/MochiHwp_Web.zip -d public/hwp
-            echo "::notice title=hwp-web::모찌한글 웹 올림 ($(du -sh public/hwp | cut -f1), 파일 $(find public/hwp -type f | wc -l)개)"
-          else
-            echo "::warning title=hwp-web::아직 웹 버전 파일이 없어요 (다음 설치파일 배포 때 올라가요)"
-          fi
       - name: 문법 검사
         run: npx tsc --noEmit
       - name: Cloudflare 배포
