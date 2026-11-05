@@ -7,7 +7,7 @@ import type { User } from "../db";
 export const BRAND = {
   name: "모찌LAB.",
   en: "MozziLab",
-  slogan: "말랑말랑, 누구나 쉬운 PC 도구",
+  slogan: "꼭 필요한 PC 도구를 무료로, 가볍게",
 };
 
 export interface PageCtx {
@@ -49,7 +49,7 @@ export const Layout = ({ c, title, children, head }: { c: PageCtx; title?: strin
       {c.testMode && <div class="testbar">🧪 테스트 모드 — 실제 결제가 되지 않습니다 (Cloudflare 설정에 토스페이먼츠 키를 넣으면 실제 결제)</div>}
       <header class="header">
         <div class="container">
-          <a class="logo" href="/"><img src="/img/mochi.svg" alt="" />{BRAND.name}<small>{BRAND.en}</small></a>
+          <a class="logo" href="/"><img src="/img/favicon.svg" alt="" />{BRAND.name}<small>{BRAND.en}</small></a>
           <nav class="nav">
             <a href="/#products">제품</a>
             <a href="/products/capture">모찌캡처</a>
@@ -79,7 +79,7 @@ export const Layout = ({ c, title, children, head }: { c: PageCtx; title?: strin
       <footer class="footer">
         <div class="container">
           <div>
-            <div class="logo" style="font-size:17px"><img src="/img/mochi.svg" alt="" style="width:30px" />{BRAND.name}</div>
+            <div class="logo" style="font-size:17px"><img src="/img/favicon.svg" alt="" style="width:28px" />{BRAND.name}</div>
             <div>{BRAND.slogan}</div>
             <div class="small muted">© {c.company} · 문의 {c.email}</div>
           </div>
@@ -108,7 +108,7 @@ export const AdminLayout = ({ c, children }: { c: PageCtx; children: Child }) =>
     <body>
       <div class="admin">
         <aside class="admin-side">
-          <a class="logo" href="/admin" style="padding:0;background:none"><img src="/img/mochi.svg" alt="" />관리자</a>
+          <a class="logo" href="/admin" style="padding:0;background:none"><img src="/img/favicon.svg" alt="" />관리자</a>
           {ADMIN_MENU.map(([href, label, prefixes]) => {
             if (!href) return <div class="sep"></div>;
             const on = href === "/admin" ? c.path === "/admin" || c.path === "/admin/" : prefixes.some((p) => c.path.startsWith(p));

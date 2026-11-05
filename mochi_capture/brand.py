@@ -12,8 +12,8 @@ APP_VERSION = "1.0.0"
 # 환경변수 MOCHI_SERVER 가 있으면 그 값을 쓴다 (테스트용).
 SERVER_URL = os.environ.get("MOCHI_SERVER", "https://mozzilab.labelpos.com").rstrip("/")
 
-PINK = "#ff6f91"
-PINK_DARK = "#e8557a"
-PINK_SOFT = "#fff0f4"
-PINK_LIGHT = "#ffe3eb"
-INK = "#3b2f2f"
+PINK = "#4f5bff"
+PINK_DARK = "#3d48e6"
+PINK_SOFT = "#eef0ff"
+PINK_LIGHT = "#e0e4ff"
+INK = "#0f172a"

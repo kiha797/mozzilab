@@ -3,7 +3,7 @@
 (function () {
   if (window.__mozziOverlay) return;
   window.__mozziOverlay = true;
-  const ACCENT = '#ff6f91';
+  const ACCENT = '#4f5bff';
   const invoke = (cmd, args) => {
     const t = window.__TAURI__;
     if (!t || !t.core) return Promise.resolve(null);
@@ -20,26 +20,26 @@
   #mozzi-bar .mz-ad span { overflow: hidden; text-overflow: ellipsis; }
   #mozzi-bar .mz-login { height: 24px; padding: 0 12px; border-radius: 6px; border: 1.3px solid ${ACCENT}; background: #fff;
     color: ${ACCENT}; font-weight: bold; cursor: pointer; font-size: 12px; }
-  #mozzi-bar .mz-login:hover { background: #fff0f4; }
-  #mozzi-menu { position: fixed; top: 32px; right: 10px; z-index: 2147483001; background: #fff; border: 1px solid #e3dcd8;
-    border-radius: 10px; box-shadow: 0 10px 30px rgba(59,47,47,.15); padding: 6px; min-width: 210px; display: none;
-    font-family: 'Malgun Gothic', sans-serif; font-size: 13px; color: #3b2f2f; }
-  #mozzi-menu .mz-sub { color: #8a7f82; padding: 6px 10px; font-size: 12px; }
+  #mozzi-bar .mz-login:hover { background: #eef0ff; }
+  #mozzi-menu { position: fixed; top: 32px; right: 10px; z-index: 2147483001; background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 10px; box-shadow: 0 10px 30px rgba(15,23,42,.15); padding: 6px; min-width: 210px; display: none;
+    font-family: 'Malgun Gothic', sans-serif; font-size: 13px; color: #0f172a; }
+  #mozzi-menu .mz-sub { color: #64748b; padding: 6px 10px; font-size: 12px; }
   #mozzi-menu button { display: block; width: 100%; text-align: left; border: none; background: none; padding: 8px 10px;
-    border-radius: 6px; cursor: pointer; font-size: 13px; color: #3b2f2f; }
-  #mozzi-menu button:hover { background: #fff0f4; color: ${ACCENT}; }
-  .mz-card { position: fixed; z-index: 2147483002; background: #fff; border-radius: 14px; box-shadow: 0 16px 40px rgba(59,47,47,.25);
-    font-family: 'Malgun Gothic', sans-serif; color: #3b2f2f; }
+    border-radius: 6px; cursor: pointer; font-size: 13px; color: #0f172a; }
+  #mozzi-menu button:hover { background: #eef0ff; color: ${ACCENT}; }
+  .mz-card { position: fixed; z-index: 2147483002; background: #fff; border-radius: 14px; box-shadow: 0 16px 40px rgba(15,23,42,.25);
+    font-family: 'Malgun Gothic', sans-serif; color: #0f172a; }
   .mz-card button.mz-primary { width: 100%; height: 34px; border: none; border-radius: 8px; color: #fff; background: ${ACCENT};
     font-weight: bold; cursor: pointer; font-size: 13px; margin-top: 10px; }
-  .mz-card button.mz-ghost { border: 1px solid #e3dcd8; background: #fff; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+  .mz-card button.mz-ghost { border: 1px solid #e2e8f0; background: #fff; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 12px; }
   .mz-x { position: absolute; top: 8px; right: 10px; border: none; background: none; cursor: pointer; color: #999; font-size: 13px; }
-  #mozzi-modal-bg { position: fixed; inset: 0; background: rgba(40,30,32,.45); z-index: 2147483003; display: none; }
+  #mozzi-modal-bg { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 2147483003; display: none; }
   #mozzi-login { left: 50%; top: 50%; transform: translate(-50%, -50%); width: 380px; padding: 24px; text-align: center; z-index: 2147483004; display: none; }
   #mozzi-login .mz-code { font-size: 30px; font-weight: bold; letter-spacing: 4px; margin: 12px 0 4px; font-family: Consolas, monospace; }
   #mozzi-popup { left: 16px; bottom: 36px; width: 300px; padding: 14px; display: none; }
   #mozzi-update { right: 16px; bottom: 36px; width: 300px; padding: 14px; display: none; border: 1.5px solid ${ACCENT}; }
-  #mozzi-update .mz-bar { height: 8px; background: #f3e9ec; border-radius: 4px; overflow: hidden; margin-top: 8px; }
+  #mozzi-update .mz-bar { height: 8px; background: #e0e4ff; border-radius: 4px; overflow: hidden; margin-top: 8px; }
   #mozzi-update .mz-bar i { display: block; height: 100%; background: ${ACCENT}; width: 0; }
   #mozzi-info { left: 50%; bottom: 40px; transform: translateX(-50%); padding: 12px 18px; display: none; }
   `;
@@ -108,7 +108,7 @@
       if (l) {
         loginBox.innerHTML = `<button class="mz-x">닫기</button>
           <div style="font-size:18px;font-weight:bold;color:${ACCENT}">모찌LAB. 계정 연결</div>
-          <div style="margin-top:10px;white-space:pre-line;font-size:13px;color:#5b4a50">${esc(l.info)}</div>
+          <div style="margin-top:10px;white-space:pre-line;font-size:13px;color:#475569">${esc(l.info)}</div>
           ${l.user_code && !l.failed ? `<div class="mz-code">${esc(l.user_code)}</div><div style="font-size:12px;color:#999">승인을 기다리는 중… (10분 안에 완료해 주세요)</div>` : ''}
           <div style="margin-top:14px;display:flex;gap:8px;justify-content:center">
             ${l.verify_url ? '<button class="mz-ghost" data-a="reopen">브라우저 다시 열기</button>' : ''}

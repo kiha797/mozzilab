@@ -113,11 +113,11 @@ const SCHEMA = [
     app_version TEXT DEFAULT '', status TEXT DEFAULT 'pending', user_id INTEGER, token TEXT, created_at TEXT, expires_at TEXT)`,
   `CREATE TABLE IF NOT EXISTS ads (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, subtitle TEXT DEFAULT '',
     image TEXT DEFAULT '', link_url TEXT DEFAULT '', button_text TEXT DEFAULT '자세히 알아보기', placement TEXT DEFAULT 'banner',
-    apps TEXT DEFAULT 'all', bg_color TEXT DEFAULT '#ff6f91', weight INTEGER DEFAULT 1, active INTEGER DEFAULT 1,
+    apps TEXT DEFAULT 'all', bg_color TEXT DEFAULT '#4f5bff', weight INTEGER DEFAULT 1, active INTEGER DEFAULT 1,
     start_at TEXT, end_at TEXT, views INTEGER DEFAULT 0, clicks INTEGER DEFAULT 0, created_at TEXT)`,
   `CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, slug TEXT UNIQUE, name TEXT,
     tagline TEXT DEFAULT '', description TEXT DEFAULT '', version TEXT DEFAULT '1.0.0', download_url TEXT DEFAULT '',
-    status TEXT DEFAULT 'released', color TEXT DEFAULT '#ff6f91', sort INTEGER DEFAULT 0, downloads INTEGER DEFAULT 0)`,
+    status TEXT DEFAULT 'released', color TEXT DEFAULT '#4f5bff', sort INTEGER DEFAULT 0, downloads INTEGER DEFAULT 0)`,
   `CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT DEFAULT '')`,
   `CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, content_type TEXT, data BLOB, created_at TEXT)`,
 ];
@@ -148,19 +148,19 @@ async function seed(env: Env) {
   if (!pc?.n) {
     const ins = "INSERT INTO products (slug, name, sort, status, version, color, tagline, description, download_url) VALUES (?,?,?,?,?,?,?,?,?)";
     await env.DB.batch([
-      env.DB.prepare(ins).bind("capture", "모찌캡처", 1, "released", "1.0.0", "#ff6f91", "클릭 한 번으로 쏙! 말랑한 화면 캡처",
+      env.DB.prepare(ins).bind("capture", "모찌캡처", 1, "released", "1.0.0", "#4f5bff", "클릭 한 번으로 끝내는 화면 캡처 · 편집",
         "직접지정 · 창 · 단위영역 · 전체화면 · 스크롤 · 크기지정 캡처와 도형·펜·모자이크 편집까지 한 번에.",
         env.CAPTURE_DOWNLOAD_URL || "https://github.com/kiha797/mozzilab/releases/latest/download/MochiCapture_Setup.exe"),
-      env.DB.prepare(ins).bind("pdf", "모찌PDF", 2, "released", "1.0.0", "#7ec8a9", "PDF 변환·합치기·나누기를 말랑하게",
+      env.DB.prepare(ins).bind("pdf", "모찌PDF", 2, "released", "1.0.0", "#e2352b", "PDF 변환 · 합치기 · 나누기 · 용량 줄이기",
         "합치기 · 나누기 · 페이지 회전/삭제/순서 바꾸기 · 이미지→PDF · PDF→이미지 · 용량 줄이기 · 암호 걸기/풀기.",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiPDF_Setup.exe"),
-      env.DB.prepare(ins).bind("zip", "모찌압축", 3, "released", "1.0.0", "#ffb86b", "꾹 눌러 담는 압축 프로그램",
+      env.DB.prepare(ins).bind("zip", "모찌압축", 3, "released", "1.0.0", "#f28a00", "암호 압축까지 되는 무료 압축 프로그램",
         "ZIP · 7Z 압축하기/풀기 · TAR 풀기 · 암호(AES-256) · 한글 이름 깨진 ZIP 복구 · 마우스 오른쪽 메뉴로 바로 풀기.",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiZip_Setup.exe"),
-      env.DB.prepare(ins).bind("photo", "모찌포토", 4, "released", "1.2.0", "#8a6cf0", "포토샵을 그대로, 말랑하게",
+      env.DB.prepare(ins).bind("photo", "모찌포토", 4, "released", "1.2.0", "#1477e0", "포토샵처럼 쓰는 무료 사진 편집기",
         "포토샵과 거의 같은 화면·단축키. 레이어 · 마스크 · 조정 레이어 · 레이어 스타일 · 문자 · 펜 · 브러시 · 필터 · PSD 완벽 호환.",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiPhoto_Setup.exe"),
-      env.DB.prepare(ins).bind("vector", "모찌벡터", 5, "released", "1.2.0", "#2f9be8", "일러스트레이터를 그대로, 쓱쓱",
+      env.DB.prepare(ins).bind("vector", "모찌벡터", 5, "released", "1.2.0", "#6a35ea", "일러스트레이터처럼 쓰는 무료 벡터 디자인",
         "일러스트레이터와 거의 같은 화면·단축키. 펜 · 도형 · 문자 · 패스파인더 · 대지 · 심볼 · 그레이디언트 · SVG/PDF/AI 열기·저장.",
         "https://github.com/kiha797/mozzilab/releases/latest/download/MochiVector_Setup.exe"),
       env.DB.prepare(ins).bind("hwp", "모찌한글", 6, "released", "1.3.0", "#3f7cf4", "한글(HWP) 문서를 무료로",
@@ -172,9 +172,9 @@ async function seed(env: Env) {
   if (!ac?.n) {
     const ins = "INSERT INTO ads (title, subtitle, link_url, placement, bg_color, button_text, created_at) VALUES (?,?,?,?,?,?,?)";
     await env.DB.batch([
-      env.DB.prepare(ins).bind("광고 없이 쾌적하게, 모찌 플러스", "월 5,500원으로 모든 모찌LAB. 광고 제거", "/pricing", "banner", "#ff6f91", "구독하기", t),
+      env.DB.prepare(ins).bind("광고 없이 쾌적하게, 모찌 플러스", "월 5,500원으로 모든 모찌LAB. 광고 제거", "/pricing", "banner", "#4f5bff", "구독하기", t),
       env.DB.prepare(ins).bind("모찌PDF 곧 출시!", "PDF 변환·합치기를 무료로", "/products/pdf", "banner", "#7ec8a9", "자세히 알아보기", t),
-      env.DB.prepare(ins).bind("광고가 신경 쓰이나요?", "모찌 플러스로 광고 없이 캡처하세요. 언제든 해지 가능!", "/pricing", "popup", "#ff8fab", "광고 없이 쓰기", t),
+      env.DB.prepare(ins).bind("광고가 신경 쓰이나요?", "모찌 플러스로 광고 없이 캡처하세요. 언제든 해지 가능!", "/pricing", "popup", "#7b6cff", "광고 없이 쓰기", t),
     ]);
   }
 }

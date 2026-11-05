@@ -84,7 +84,7 @@ site.post("/signup", async (c) => {
     .bind(email, (f.name || "").trim().slice(0, 100), await hashPassword(pw), f.marketing ? 1 : 0, now()).run();
   const user = await c.env.DB.prepare("SELECT * FROM users WHERE id = ?").bind(r.meta.last_row_id).first<User>();
   await login(c, user!);
-  return flashRedirect(c, "success", "모찌LAB. 회원이 되신 것을 환영합니다! 🍡", safeNext(f.next, "/mypage"));
+  return flashRedirect(c, "success", "모찌LAB. 회원이 되신 것을 환영합니다!", safeNext(f.next, "/mypage"));
 });
 
 site.get("/login/:provider", async (c) => {

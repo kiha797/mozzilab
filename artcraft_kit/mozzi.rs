@@ -23,7 +23,7 @@ pub const APP_NAME: &str = "@@NAME@@";
 pub const VERSION: &str = "@@VERSION@@";
 pub const SERVER: &str = "https://mozzilab.labelpos.com";
 const RELEASE_API: &str = "https://api.github.com/repos/kiha797/mozzilab/releases/latest";
-const ACCENT: Color32 = Color32::from_rgb(0xff, 0x6f, 0x91);
+const ACCENT: Color32 = Color32::from_rgb(0x4f, 0x5b, 0xff);
 const OFFLINE_GRACE_SECS: u64 = 7 * 24 * 3600;
 /// 켜져 있는 동안 새 버전을 확인하는 간격
 const UPDATE_EVERY: Duration = Duration::from_secs(3 * 3600);
@@ -195,8 +195,8 @@ struct State {
 fn house_ads() -> Value {
     json!({
         "show_ads": true, "popup_every": 1, "pricing_url": format!("{SERVER}/pricing"),
-        "banner": [{"title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌LAB. 광고 제거", "bg_color": "#ff6f91", "button_text": "자세히 알아보기"}],
-        "popup": [{"title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌LAB. 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!", "bg_color": "#ff8fab", "button_text": "광고 없이 쓰기"}],
+        "banner": [{"title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌LAB. 광고 제거", "bg_color": "#4f5bff", "button_text": "자세히 알아보기"}],
+        "popup": [{"title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌LAB. 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!", "bg_color": "#6e7bff", "button_text": "광고 없이 쓰기"}],
     })
 }
 
@@ -839,7 +839,7 @@ fn popup_ad(ctx: &Context, s: &mut State) {
                     }
                 });
             });
-            ui.label(RichText::new(ad["title"].as_str().unwrap_or("")).size(15.0).strong().color(Color32::from_rgb(0x3b, 0x2f, 0x2f)));
+            ui.label(RichText::new(ad["title"].as_str().unwrap_or("")).size(15.0).strong().color(Color32::from_rgb(0x0f, 0x17, 0x2a)));
             ui.label(RichText::new(ad["subtitle"].as_str().unwrap_or("")).color(Color32::from_gray(90)));
             ui.add_space(8.0);
             let cta = egui::Button::new(RichText::new(ad["button_text"].as_str().unwrap_or("자세히 알아보기")).color(Color32::WHITE).strong()).fill(bg).corner_radius(CornerRadius::same(8)).min_size(vec2(300.0, 32.0));
@@ -863,7 +863,7 @@ fn update_window(ctx: &Context, s: &mut State) {
     egui::Area::new(egui::Id::new("mozzi-update")).anchor(Align2::RIGHT_BOTTOM, [-16.0, -36.0]).order(egui::Order::Foreground).show(ctx, |ui| {
         egui::Frame::new().fill(Color32::WHITE).stroke(Stroke::new(1.0, ACCENT)).corner_radius(CornerRadius::same(10)).inner_margin(12.0).show(ui, |ui| {
             ui.set_width(300.0);
-            ui.label(RichText::new(format!("{APP_NAME} 새 버전 v{}", u.tag)).strong().color(Color32::from_rgb(0x3b, 0x2f, 0x2f)));
+            ui.label(RichText::new(format!("{APP_NAME} 새 버전 v{}", u.tag)).strong().color(Color32::from_rgb(0x0f, 0x17, 0x2a)));
             let dark = Color32::from_gray(80);
             if !u.error.is_empty() {
                 ui.colored_label(Color32::from_rgb(0xe5, 0x48, 0x4d), &u.error);

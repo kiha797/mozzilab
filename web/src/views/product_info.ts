@@ -15,7 +15,7 @@ export type ProductInfo = {
 
 export const PRODUCT_INFO: Record<string, ProductInfo> = {
   capture: {
-    headline: "클릭 한 번으로 쏙! 알캡처처럼 쉬운 화면 캡처",
+    headline: "클릭 한 번으로 끝내는 화면 캡처 · 편집",
     intro: "원하는 부분을 찍고, 결과창에서 바로 표시·글자·모자이크까지. 보고서나 업무 메신저에 붙이기 좋은 캡처를 가장 빠르게 만들어요.",
     similar: "알캡처 · 픽픽 대체",
     shots: [
@@ -39,7 +39,7 @@ export const PRODUCT_INFO: Record<string, ProductInfo> = {
     formats: ["PNG", "JPG", "BMP", "GIF", "인쇄"],
   },
   pdf: {
-    headline: "PDF 합치기 · 나누기 · 변환을 말랑하게",
+    headline: "PDF 합치기 · 나누기 · 변환을 한 곳에서",
     intro: "여러 PDF를 하나로 합치거나 필요한 쪽만 뽑고, 사진을 PDF로 바꾸고, 메일로 보내기 좋게 용량까지 줄여요. 인터넷에 올리지 않고 내 PC에서 처리해서 안전해요.",
     similar: "알PDF · 이지PDF 대체",
     shots: [
@@ -63,7 +63,7 @@ export const PRODUCT_INFO: Record<string, ProductInfo> = {
     formats: ["PDF", "PNG", "JPG", "BMP", "GIF", "WEBP", "TIFF"],
   },
   zip: {
-    headline: "꾹 눌러 담는 압축 프로그램",
+    headline: "암호 압축까지 되는 무료 압축 프로그램",
     intro: "파일에서 오른쪽 클릭 한 번으로 압축하고 풀어요. 다른 PC에서 만든 ZIP의 한글 이름이 깨져 있으면 자동으로 고쳐 줘요.",
     similar: "알집 · 반디집 대체",
     shots: [

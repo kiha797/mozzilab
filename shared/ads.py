@@ -12,9 +12,9 @@ from ui import mochi_pixmap, px
 
 HOUSE_ADS = {
     "banner": [{"id": None, "title": "광고 없이 쾌적하게, 모찌 플러스", "subtitle": "월 5,500원 · 모든 모찌LAB. 광고 제거",
-                "bg_color": "#ff6f91", "button_text": "자세히 알아보기", "image_url": "", "weight": 1}],
+                "bg_color": "#4f5bff", "button_text": "자세히 알아보기", "image_url": "", "weight": 1}],
     "popup": [{"id": None, "title": "광고가 신경 쓰이나요?", "subtitle": "모찌 플러스로 모든 모찌LAB. 프로그램을 광고 없이 쓰세요. 언제든 해지 가능!",
-               "bg_color": "#ff8fab", "button_text": "광고 없이 쓰기", "image_url": "", "weight": 1}],
+               "bg_color": "#6e7bff", "button_text": "광고 없이 쓰기", "image_url": "", "weight": 1}],
 }
 
 
@@ -125,7 +125,7 @@ class AdCard(QWidget):
             scaled = pm.scaled(self.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
             p.drawPixmap((self.width() - scaled.width()) // 2, (self.height() - scaled.height()) // 2, scaled)
         else:
-            base = QColor(self.ad.get("bg_color") or "#ff6f91")
+            base = QColor(self.ad.get("bg_color") or "#4f5bff")
             g = QLinearGradient(0, 0, self.width(), self.height())
             g.setColorAt(0, base)
             g.setColorAt(1, base.lighter(130))
@@ -135,7 +135,7 @@ class AdCard(QWidget):
             my = self.height() - m.height() - px(10) if self.big else (self.height() - m.height()) // 2
             p.drawPixmap(mx, my, m)
             dark = base.lightness() > 185
-            p.setPen(QColor("#3b2f2f") if dark else Qt.white)
+            p.setPen(QColor("#0f172a") if dark else Qt.white)
             tx = mx + m.width() + px(12) if not self.big else px(18)
             ty = px(16) if self.big else 0
             tw = self.width() - tx - px(12)
@@ -186,9 +186,9 @@ class AdBlock(QWidget):
         self.more.setObjectName("adMore")
         self.more.setCursor(Qt.PointingHandCursor)
         self.more.setFixedSize(px(118), px(84))
-        self.more.setStyleSheet(f"QPushButton#adMore {{ background: #3b2f2f; color: white; border: none; "
+        self.more.setStyleSheet(f"QPushButton#adMore {{ background: #0f172a; color: white; border: none; "
                                 f"border-radius: {px(10)}px; font-weight: bold; font-size: 10.5pt; margin-left: {px(4)}px; }}"
-                                "QPushButton#adMore:hover { background: #55443f; }")
+                                "QPushButton#adMore:hover { background: #334155; }")
         self.more.clicked.connect(lambda: self.ads.click(self.card.ad))
         h.addWidget(self.card)
         h.addWidget(self.more)
@@ -212,7 +212,7 @@ class PopupAd(QFrame):
         self.ads = ads
         self.host = host
         self.setObjectName("popupAd")
-        self.setStyleSheet("QFrame#popupAd { background: white; border: 1px solid #e5dcdc; border-radius: 12px; }")
+        self.setStyleSheet("QFrame#popupAd { background: white; border: 1px solid #e2e8f0; border-radius: 12px; }")
         v = QVBoxLayout(self)
         v.setContentsMargins(px(6), px(6), px(6), px(6))
         v.setSpacing(px(4))
@@ -221,12 +221,12 @@ class PopupAd(QFrame):
         row = QHBoxLayout()
         self.cta = QPushButton("광고 없이 쓰기")
         self.cta.setObjectName("popupCta")
-        self.cta.setStyleSheet(f"QPushButton#popupCta {{ background: #ff6f91; color: white; border: none; "
+        self.cta.setStyleSheet(f"QPushButton#popupCta {{ background: #4f5bff; color: white; border: none; "
                                f"border-radius: {px(6)}px; padding: {px(6)}px {px(16)}px; font-weight: bold; }}"
-                               "QPushButton#popupCta:hover { background: #e8557a; }")
+                               "QPushButton#popupCta:hover { background: #3d48e6; }")
         self.cta.setCursor(Qt.PointingHandCursor)
         self.cta.clicked.connect(lambda: self.ads.click(self.card.ad))
-        no_ads = QLabel("<a href='#' style='color:#8a7c7e; text-decoration:none'>모찌 플러스로 광고 끄기 ›</a>")
+        no_ads = QLabel("<a href='#' style='color:#64748b; text-decoration:none'>모찌 플러스로 광고 끄기 ›</a>")
         no_ads.setStyleSheet("background: transparent; font-size: 9pt;")
         no_ads.linkActivated.connect(lambda _: self.ads.click(None))
         row.addWidget(no_ads)

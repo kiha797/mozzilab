@@ -18,3 +18,8 @@
   화면에는 원본 이름 · 출처를 표시하지 않는다(사용자 요청). 단, 라이선스 파일은 설치 폴더 `licenses` 에 꼭 넣는다(라이선스 의무).
 - `web/`: 홈페이지 (Cloudflare Workers + D1 `mozzilab-db`)
 - 커밋 작성자: Claude <noreply@anthropic.com>
+
+## 디자인 (2026 리뉴얼)
+- 기본 색은 인디고 블루 `#4F5BFF`, 글자는 남색 `#0F172A`. 핑크(#ff6f91) 계열은 더 쓰지 않는다.
+- 로고 · 제품 아이콘 · 색의 원본은 `brand/make_brand.py`. 고친 뒤 `python brand/make_brand.py` 로 홈페이지 · 프로그램 아이콘을 한 번에 다시 만든다.
+- 말투는 깔끔하고 믿음 가게 ('말랑', '쏙' 같은 귀여운 표현은 쓰지 않는다).

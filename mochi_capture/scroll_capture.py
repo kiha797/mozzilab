@@ -65,7 +65,7 @@ class ScrollCapture(QObject):
         self.tip.setWindowFlags(Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint | Qt.Tool)
         self.tip.setAttribute(Qt.WA_ShowWithoutActivating)
         self.tip.setAttribute(Qt.WA_TransparentForMouseEvents)
-        self.tip.setStyleSheet("background:#ff6f91; color:white; padding:8px; font-size:10.5pt;")
+        self.tip.setStyleSheet("background:#4f5bff; color:white; padding:8px; font-size:10.5pt;")
         self.tip.adjustSize()
         self._place_tip()
 

@@ -23,12 +23,12 @@ def title_label(text, sub=""):
     v.setContentsMargins(0, 0, 0, px(6))
     v.setSpacing(px(2))
     t = QLabel(text)
-    t.setStyleSheet("font-size: 17pt; font-weight: bold; color: #3b2f2f;")
+    t.setStyleSheet("font-size: 17pt; font-weight: bold; color: #0f172a;")
     v.addWidget(t)
     if sub:
         s = QLabel(sub)
         s.setWordWrap(True)
-        s.setStyleSheet("color: #8a7c7e; font-size: 10.5pt;")
+        s.setStyleSheet("color: #64748b; font-size: 10.5pt;")
         v.addWidget(s)
     return w
 
@@ -39,14 +39,14 @@ def primary_button(text):
     b.setMinimumHeight(px(44))
     b.setStyleSheet(f"QPushButton {{ background: {ACCENT}; color: white; border: none; border-radius: {px(10)}px;"
                     f" font-size: 12pt; font-weight: bold; padding: 0 {px(28)}px; }}"
-                    "QPushButton:hover { background: #e8557a; } QPushButton:disabled { background: #f3b9c8; }")
+                    "QPushButton:hover { background: #3d48e6; } QPushButton:disabled { background: #b9c1ff; }")
     return b
 
 
 def card():
     f = QFrame()
     f.setObjectName("card")
-    f.setStyleSheet(f"QFrame#card {{ background: white; border: 1px solid #efe6e3; border-radius: {px(14)}px; }}")
+    f.setStyleSheet(f"QFrame#card {{ background: white; border: 1px solid #e2e8f0; border-radius: {px(14)}px; }}")
     return f
 
 
@@ -64,10 +64,10 @@ class DropFileList(QListWidget):
         self.setDragDropMode(QAbstractItemView.InternalMove)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setIconSize(QSize(px(22), px(22)))
-        self.setStyleSheet(f"QListWidget {{ background: white; border: 2px dashed #f3c6d3; border-radius: {px(12)}px;"
+        self.setStyleSheet(f"QListWidget {{ background: white; border: 2px dashed #c9cfff; border-radius: {px(12)}px;"
                            f" padding: {px(6)}px; font-size: 10.5pt; }}"
                            f"QListWidget::item {{ padding: {px(6)}px; border-radius: {px(6)}px; }}"
-                           "QListWidget::item:selected { background: #ffe3eb; color: #3b2f2f; }")
+                           "QListWidget::item:selected { background: #e0e4ff; color: #0f172a; }")
         self.model().rowsMoved.connect(lambda *_: self.changed.emit())
 
     def paths(self):
@@ -145,7 +145,7 @@ class DropFileList(QListWidget):
             p.setOpacity(0.55)
             p.drawPixmap(r.center().x() - m.width() // 2, r.center().y() - m.height() - px(6), m)
             p.setOpacity(1)
-            p.setPen(QColor("#a3979a"))
+            p.setPen(QColor("#94a3b8"))
             p.drawText(r.adjusted(0, m.height() // 2 + px(30), 0, 0), Qt.AlignHCenter | Qt.AlignTop, self.hint)
             p.end()
 
@@ -261,6 +261,6 @@ class ToolCard(QToolButton):
         self.setIcon(icon(icon_name, color))
         self.setIconSize(QSize(px(40), px(40)))
         self.setText(f"{title}\n{desc}")
-        self.setStyleSheet(f"QToolButton {{ background: white; border: 1px solid #efe6e3; border-radius: {px(16)}px;"
-                           f" padding: {px(16)}px; font-size: 11pt; color: #3b2f2f; text-align: center; }}"
-                           f"QToolButton:hover {{ border: 2px solid {color}; background: #fffafb; }}")
+        self.setStyleSheet(f"QToolButton {{ background: white; border: 1px solid #e2e8f0; border-radius: {px(16)}px;"
+                           f" padding: {px(16)}px; font-size: 11pt; color: #0f172a; text-align: center; }}"
+                           f"QToolButton:hover {{ border: 2px solid {color}; background: #f8faff; }}")

@@ -25,13 +25,13 @@ IMG_EXTS = (".jpg", ".jpeg", ".png", ".bmp", ".gif", ".webp", ".tif", ".tiff")
 IMG_FILTER = "이미지 (*.jpg *.jpeg *.png *.bmp *.gif *.webp *.tif *.tiff)"
 
 TOOLS = [  # (키, 버튼 이름, 아이콘, 카드 설명, 색)
-    ("merge", "합치기", "merge", "여러 PDF를 하나로", "#ff6f91"),
-    ("split", "나누기", "split", "쪽별·범위별로 나누기", "#ffb86b"),
-    ("pages", "페이지 편집", "pages", "회전 · 삭제 · 순서 바꾸기", "#7ec8a9"),
+    ("merge", "합치기", "merge", "여러 PDF를 하나로", "#4f5bff"),
+    ("split", "나누기", "split", "쪽별·범위별로 나누기", "#f59e0b"),
+    ("pages", "페이지 편집", "pages", "회전 · 삭제 · 순서 바꾸기", "#14b8a6"),
     ("img2pdf", "이미지→PDF", "img2pdf", "사진·스캔 이미지를 PDF로", "#5a8dee"),
     ("pdf2img", "PDF→이미지", "pdf2img", "쪽마다 PNG·JPG로 저장", "#a66cff"),
-    ("compress", "용량 줄이기", "compress", "메일로 보내기 좋게 작게", "#ff8f5a"),
-    ("lock", "암호", "lock", "암호 걸기 · 풀기", "#6b5d5d"),
+    ("compress", "용량 줄이기", "compress", "메일로 보내기 좋게 작게", "#f97316"),
+    ("lock", "암호", "lock", "암호 걸기 · 풀기", "#475569"),
 ]
 
 
@@ -189,7 +189,7 @@ class PdfWindow(MozziWindow):
     def _split(self):
         picker = self._picker()
         info = QLabel("")
-        info.setStyleSheet("color:#8a7c7e;")
+        info.setStyleSheet("color:#64748b;")
         picker.picked.connect(lambda p: info.setText(pdf_info(p)))
         group = QButtonGroup(self)
         r_each = QRadioButton("한 쪽씩 모두 나누기")
@@ -250,9 +250,9 @@ class PdfWindow(MozziWindow):
         grid.setDragDropMode(QAbstractItemView.InternalMove)
         grid.setSelectionMode(QAbstractItemView.ExtendedSelection)
         grid.setSpacing(px(8))
-        grid.setStyleSheet(f"QListWidget {{ background: #f3eeec; border: none; border-radius: {px(12)}px; padding: {px(10)}px; }}"
-                           "QListWidget::item { color: #3b2f2f; }"
-                           "QListWidget::item:selected { background: #ffe3eb; border-radius: 8px; }")
+        grid.setStyleSheet(f"QListWidget {{ background: #eef2f6; border: none; border-radius: {px(12)}px; padding: {px(10)}px; }}"
+                           "QListWidget::item { color: #0f172a; }"
+                           "QListWidget::item:selected { background: #e0e4ff; border-radius: 8px; }")
         self.page_grid = grid
         self._thumbs = []
 
@@ -389,7 +389,7 @@ class PdfWindow(MozziWindow):
     def _compress(self):
         picker = self._picker()
         info = QLabel("")
-        info.setStyleSheet("color:#8a7c7e;")
+        info.setStyleSheet("color:#64748b;")
         picker.picked.connect(lambda p: info.setText(f"지금 크기: {human_size(os.path.getsize(p))}"))
         group = QButtonGroup(self)
         opts = QVBoxLayout()
@@ -403,7 +403,7 @@ class PdfWindow(MozziWindow):
             if key == "medium":
                 r.setChecked(True)
         result = QLabel("")
-        result.setStyleSheet("font-size: 13pt; font-weight: bold; color: #e8557a;")
+        result.setStyleSheet("font-size: 13pt; font-weight: bold; color: #3d48e6;")
         form = QFormLayout()
         form.addRow("PDF 파일", picker)
         form.addRow("", info)
@@ -490,7 +490,7 @@ def selftest():
     from PIL import Image
     d = tempfile.mkdtemp()
     img = os.path.join(d, "a.png")
-    Image.new("RGB", (300, 200), "#ff6f91").save(img)
+    Image.new("RGB", (300, 200), "#4f5bff").save(img)
     noop = lambda *_: None  # noqa: E731
     a = T.images_to_pdf(noop, [img, img], os.path.join(d, "a.pdf"))
     m = T.merge(noop, [a, a], os.path.join(d, "m.pdf"))

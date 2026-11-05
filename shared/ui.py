@@ -3,7 +3,7 @@ from PySide6.QtCore import QByteArray, QRectF, Qt
 from PySide6.QtGui import QGuiApplication, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 
-ACCENT = "#ff6f91"
+ACCENT = "#4f5bff"
 TEXT = "#333333"
 DISABLED = "#b8b8b8"
 
@@ -112,23 +112,20 @@ def icon(name, color=TEXT):
     return ic
 
 
-APP_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">'
-           '<rect width="64" height="64" rx="16" fill="#ff6f91"/>'
-           '<path d="M7 41c0-15 11-25 25-25s25 10 25 25c0 9-10 12-25 12S7 50 7 41Z" fill="#fff"/>'
-           '<circle cx="24" cy="38" r="3.2" fill="#3b2f2f"/><circle cx="40" cy="38" r="3.2" fill="#3b2f2f"/>'
-           '<ellipse cx="17.5" cy="44" rx="4.2" ry="2.5" fill="#ffb3c6"/>'
-           '<ellipse cx="46.5" cy="44" rx="4.2" ry="2.5" fill="#ffb3c6"/>'
-           '<path d="M29 43q3 3.2 6 0" fill="none" stroke="#3b2f2f" stroke-width="2.3" stroke-linecap="round"/>'
-           '<path d="M8 8h8M8 8v8M56 8h-8M56 8v8" stroke="#fff" stroke-width="3.5" stroke-linecap="round"/></svg>')
+APP_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="gcapture" x1="'
+           '0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6A75FF"/><stop offset="1" stop-color="#3F46E0"'
+           '/></linearGradient><linearGradient id="gcaptureh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-'
+           'color="#fff" stop-opacity=".22"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGrad'
+           'ient></defs><rect width="64" height="64" rx="15" fill="url(#gcapture)"/><rect width="64" height="64"'
+           ' rx="15" fill="url(#gcaptureh)"/><path d="M18 27v-6a3 3 0 0 1 3-3h6M37 18h6a3 3 0 0 1 3 3v6M46 37v6a'
+           '3 3 0 0 1-3 3h-6M27 46h-6a3 3 0 0 1-3-3v-6" fill="none" stroke="#fff" stroke-width="4.6" stroke-line'
+           'cap="round" stroke-linejoin="round"/><circle cx="32" cy="32" r="5.2" fill="#fff"/></svg>')
 
 # 모찌 캐릭터 (광고·로그인 창 등에 사용)
-MOCHI_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100">'
-             '<path d="M8 66C8 34 32 16 60 16s52 18 52 50c0 20-22 24-52 24S8 86 8 66Z" fill="#fff" '
-             'stroke="#3b2f2f" stroke-width="4"/>'
-             '<circle cx="44" cy="56" r="5" fill="#3b2f2f"/><circle cx="76" cy="56" r="5" fill="#3b2f2f"/>'
-             '<ellipse cx="33" cy="67" rx="8" ry="4.5" fill="#ffb3c6"/>'
-             '<ellipse cx="87" cy="67" rx="8" ry="4.5" fill="#ffb3c6"/>'
-             '<path d="M54 64q6 6 12 0" fill="none" stroke="#3b2f2f" stroke-width="3.4" stroke-linecap="round"/></svg>')
+MOCHI_SVG = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100"><path d="M8 66C8 34 32 16 60 16s52 18 '
+             '52 50c0 20-22 24-52 24S8 86 8 66Z" fill="#fff" stroke="#0F172A" stroke-width="4"/><rect x="40" y="50'
+             '" width="8" height="13" rx="4" fill="#0F172A"/><rect x="72" y="50" width="8" height="13" rx="4" fill'
+             '="#0F172A"/><circle cx="104" cy="22" r="7" fill="#4F5BFF"/></svg>')
 
 
 def mochi_pixmap(width):
@@ -179,18 +176,18 @@ def stylesheet():
         border: none; border-radius: 6px; background: transparent;
         padding: {px(6)}px {px(8)}px; min-width: {px(62)}px; font-size: 10.5pt; color: #555;
     }}
-    QToolButton[role="big"]:hover {{ background: #fff0f4; }}
-    QToolButton[role="big"]:checked {{ background: #ffe3eb; color: {ACCENT}; }}
+    QToolButton[role="big"]:hover {{ background: #eef0ff; }}
+    QToolButton[role="big"]:checked {{ background: #e0e4ff; color: {ACCENT}; }}
     QToolButton[role="big"]:disabled {{ color: {DISABLED}; }}
     QToolButton[role="big"]::menu-button {{ border: none; background: transparent; width: {px(14)}px; }}
-    QToolButton[role="big"]::menu-button:hover {{ background: #ffd3de; border-radius: 4px; }}
+    QToolButton[role="big"]::menu-button:hover {{ background: #c9cfff; border-radius: 4px; }}
     QListWidget#historyList::item:selected:!active {{ border: 3px solid {ACCENT}; background: transparent; }}
     QToolButton[role="launch"] {{
         border: none; border-radius: 5px; background: transparent;
         padding: {px(8)}px {px(4)}px {px(6)}px {px(4)}px; min-width: {px(58)}px; font-size: 9.5pt; color: #555;
     }}
-    QToolButton[role="launch"]:hover {{ background: #fff0f4; }}
-    QToolButton[role="launch"]:checked {{ background: #ffe3eb; color: {ACCENT}; }}
+    QToolButton[role="launch"]:hover {{ background: #eef0ff; }}
+    QToolButton[role="launch"]:checked {{ background: #e0e4ff; color: {ACCENT}; }}
     QToolButton[role="launch"]::menu-indicator {{ image: none; width: 0; }}
     QToolButton[role="big"]::menu-indicator {{ subcontrol-position: bottom center; subcontrol-origin: padding; bottom: -2px; }}
     QFrame#vsep {{ background: #e3e5ea; min-width: 1px; max-width: 1px; }}
@@ -205,9 +202,9 @@ def stylesheet():
     QListWidget#historyList::item:selected {{ border: 3px solid {ACCENT}; background: transparent; }}
     QStatusBar {{ background: #f6f7f9; border-top: 1px solid #e3e5ea; }}
     QPushButton#primary {{ background: {ACCENT}; color: white; border: none; border-radius: 4px; padding: 5px 14px; }}
-    QPushButton#primary:hover {{ background: #e8557a; }}
+    QPushButton#primary:hover {{ background: #3d48e6; }}
     QFrame#fixedBar {{ background: #ffffff; border: 1px solid #c9d3e3; border-radius: 6px; }}
     QMenu {{ background: white; border: 1px solid #d9dce3; padding: 4px; }}
     QMenu::item {{ padding: 6px 24px 6px 12px; }}
-    QMenu::item:selected {{ background: #fff0f4; color: {ACCENT}; }}
+    QMenu::item:selected {{ background: #eef0ff; color: {ACCENT}; }}
     """

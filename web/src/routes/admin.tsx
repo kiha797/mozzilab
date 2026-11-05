@@ -202,7 +202,7 @@ admin.get("/ads", async (c) => {
   return c.html(<A.Ads c={pageCtx(c)} items={items} />);
 });
 
-const NEW_AD: Partial<Ad> = { active: 1, weight: 1, placement: "banner", apps: "all", bg_color: "#ff6f91", button_text: "자세히 알아보기" };
+const NEW_AD: Partial<Ad> = { active: 1, weight: 1, placement: "banner", apps: "all", bg_color: "#4f5bff", button_text: "자세히 알아보기" };
 
 admin.get("/ads/new", (c) => c.html(<A.AdEdit c={pageCtx(c)} ad={NEW_AD} />));
 admin.get("/ads/:id", async (c) => {
@@ -235,7 +235,7 @@ async function saveAd(c: C, id: number | null) {
   if (f.remove_image) image = "";
   const vals = [(f.title || "").trim() || "광고", (f.subtitle || "").trim(), image, (f.link_url || "").trim(),
     (f.button_text || "").trim() || "자세히 알아보기", f.placement === "popup" ? "popup" : "banner", f.apps || "all",
-    f.bg_color || "#ff6f91", Math.max(1, Number(f.weight) || 1), f.active ? 1 : 0, kstDate(f.start_at), kstDate(f.end_at, true)];
+    f.bg_color || "#4f5bff", Math.max(1, Number(f.weight) || 1), f.active ? 1 : 0, kstDate(f.start_at), kstDate(f.end_at, true)];
   if (old) {
     await c.env.DB.prepare(`UPDATE ads SET title=?, subtitle=?, image=?, link_url=?, button_text=?, placement=?, apps=?, bg_color=?,
       weight=?, active=?, start_at=?, end_at=? WHERE id = ?`).bind(...vals, old.id).run();
@@ -268,7 +268,7 @@ admin.get("/products", async (c) => {
 admin.post("/products", async (c) => {
   const f = await form(c);
   const vals = [f.slug || "", f.name || "", f.tagline || "", f.description || "", f.version || "1.0.0", f.download_url || "",
-    f.status === "released" ? "released" : "coming", f.color || "#ff6f91", Number(f.sort) || 0].map((v) => (typeof v === "string" ? v.trim() : v));
+    f.status === "released" ? "released" : "coming", f.color || "#4f5bff", Number(f.sort) || 0].map((v) => (typeof v === "string" ? v.trim() : v));
   if (f.id) {
     await c.env.DB.prepare(`UPDATE products SET slug=?, name=?, tagline=?, description=?, version=?, download_url=?, status=?, color=?, sort=?
       WHERE id = ?`).bind(...vals, Number(f.id)).run();

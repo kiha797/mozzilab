@@ -5,14 +5,14 @@
 (function () {
   if (window.__mozziWeb) return;
   window.__mozziWeb = true;
-  const ACCENT = '#ff6f91';
+  const ACCENT = '#4f5bff';
   const BAR = 34;
   const css = `
   html { height: 100%; }
   body { padding-top: ${BAR}px !important; box-sizing: border-box; height: 100%; }
   #mz-web { position: fixed; top: 0; left: 0; right: 0; height: ${BAR}px; z-index: 2147483000; display: flex; align-items: center;
-    gap: 8px; padding: 0 10px; background: #fff7f9; border-bottom: 1px solid #f3d6de; box-sizing: border-box;
-    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; color: #3b2f2f; }
+    gap: 8px; padding: 0 10px; background: #f8faff; border-bottom: 1px solid #e2e8f0; box-sizing: border-box;
+    font: 13px 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; color: #0f172a; }
   #mz-web a { color: inherit; text-decoration: none; }
   #mz-web .mz-logo { display: flex; align-items: center; gap: 6px; font-weight: bold; white-space: nowrap; }
   #mz-web .mz-logo img { width: 20px; height: 20px; border-radius: 5px; }
@@ -23,7 +23,7 @@
   #mz-web .mz-gap { flex: 1; }
   #mz-web .mz-btn { height: 24px; line-height: 22px; padding: 0 10px; border-radius: 6px; border: 1.3px solid ${ACCENT};
     color: ${ACCENT}; background: #fff; font-weight: bold; white-space: nowrap; font-size: 12px; }
-  #mz-web .mz-pc { border-color: #d9cdd1; color: #5b4a50; font-weight: normal; }
+  #mz-web .mz-pc { border-color: #cbd5e1; color: #475569; font-weight: normal; }
   @media (max-width: 640px) { #mz-web .mz-pc, #mz-web .mz-logo span { display: none; } }
   `;
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));

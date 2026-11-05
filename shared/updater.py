@@ -50,7 +50,7 @@ class UpdateDialog(QDialog):
         ver.setAlignment(Qt.AlignCenter)
         self.info = QLabel("설정과 저장해 둔 내용은 그대로 남아요.\n업데이트하면 프로그램이 잠깐 닫혔다가 다시 켜집니다.")
         self.info.setAlignment(Qt.AlignCenter)
-        self.info.setStyleSheet("color: #6b5d5d;")
+        self.info.setStyleSheet("color: #475569;")
         self.bar = QProgressBar()
         self.bar.hide()
         for w in (pic, title, ver, self.info, self.bar):

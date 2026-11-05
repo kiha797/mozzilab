@@ -218,7 +218,7 @@ export const AdEdit = ({ c, ad }: { c: PageCtx; ad: Partial<Ad> }) => (
             <div class="field"><label>보여줄 제품</label><select class="input" name="apps">
               {Object.entries(APPS_LABEL).map(([k, n]) => <option value={k} selected={ad.apps === k}>{k === "all" ? "전체 제품" : n}</option>)}</select></div>
             <div class="field"><label>버튼 글자</label><input class="input" name="button_text" value={ad.button_text || ""} /></div>
-            <div class="field"><label>배경색 (이미지 없을 때)</label><input class="input" type="color" name="bg_color" value={ad.bg_color || "#ff6f91"} style="height:46px" /></div>
+            <div class="field"><label>배경색 (이미지 없을 때)</label><input class="input" type="color" name="bg_color" value={ad.bg_color || "#4f5bff"} style="height:46px" /></div>
             <div class="field"><label>시작일</label><input class="input" type="date" name="start_at" value={ad.start_at ? fmt(ad.start_at, "date") : ""} /></div>
             <div class="field"><label>종료일</label><input class="input" type="date" name="end_at" value={ad.end_at ? fmt(ad.end_at, "date") : ""} /></div>
             <div class="field"><label>노출 비중 (클수록 자주)</label><input class="input" type="number" min="1" name="weight" value={String(ad.weight || 1)} /></div>
@@ -232,7 +232,7 @@ export const AdEdit = ({ c, ad }: { c: PageCtx; ad: Partial<Ad> }) => (
       </div>
       <div class="panel"><h2>미리보기</h2>
         {ad.image ? <img src={adImageUrl(ad.image)} style="border-radius:12px;width:100%" />
-          : <div class="ad-preview" style={`background:${ad.bg_color || "#ff6f91"}`}><img src="/img/mochi.svg" style="width:70px" /><div><b>{ad.title || "광고 제목"}</b>{ad.subtitle}</div></div>}
+          : <div class="ad-preview" style={`background:${ad.bg_color || "#4f5bff"}`}><img src="/img/mochi.svg" style="width:70px" /><div><b>{ad.title || "광고 제목"}</b>{ad.subtitle}</div></div>}
         <p class="small muted">이미지가 없으면 PC 프로그램에서 배경색 + 모찌 캐릭터 + 제목/설명으로 자동으로 그려집니다.</p>
         {ad.id && <dl class="dl"><dt>노출</dt><dd>{ad.views}회</dd><dt>클릭</dt><dd>{ad.clicks}회 (CTR {ctrOf(ad as Ad)}%)</dd></dl>}
       </div>
@@ -257,7 +257,7 @@ export const Products = ({ c, items }: { c: PageCtx; items: Product[] }) => (
             <div class="field"><label>상태</label><select class="input" name="status">
               <option value="released" selected={p?.status === "released"}>출시</option><option value="coming" selected={!p || p.status === "coming"}>출시 예정</option></select></div>
             <div class="field full"><label>다운로드 주소 (설치파일 링크)</label><input class="input" name="download_url" value={p?.download_url || ""} placeholder="https://github.com/…/releases/download/v1.0.0/MochiCapture_Setup_1.0.0.exe" /></div>
-            <div class="field"><label>대표 색</label><input class="input" type="color" name="color" value={p?.color || "#ff6f91"} style="height:46px" /></div>
+            <div class="field"><label>대표 색</label><input class="input" type="color" name="color" value={p?.color || "#4f5bff"} style="height:46px" /></div>
             <div class="field"><label>표시 순서</label><input class="input" type="number" name="sort" value={String(p?.sort ?? 9)} /></div>
           </div>
           <button class="btn btn-sm btn-dark">저장</button>

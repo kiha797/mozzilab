@@ -18,22 +18,26 @@ export const Home = ({ c, products }: { c: PageCtx; products: Product[] }) => (
     <section class="hero">
       <div class="container">
         <div>
-          <span class="badge">🍡 무료로 시작하는 PC 도구</span>
-          <h1>말랑말랑,<br /><em>누구나 쉬운</em> PC 도구<br />{BRAND.name}</h1>
-          <p>캡처부터 PDF까지, 꼭 필요한 기능만 귀엽고 가볍게.<br />지금 무료로 써보고, 광고가 싫다면 {c.s.plan_name}로!</p>
-          <a class="btn btn-pink btn-lg" href="/download/capture">모찌캡처 무료 다운로드</a>
+          <span class="badge">Windows · 무료 · 자동 업데이트</span>
+          <h1>일 잘하는 PC 도구,<br /><em>무료로 한 번에.</em></h1>
+          <p>캡처 · PDF · 압축 · 사진 · 벡터 · 한글 문서까지.<br />설치 한 번이면 늘 최신 버전으로, 광고 없이 쓰려면 {c.s.plan_name}.</p>
+          <a class="btn btn-pink btn-lg" href="#products">제품 둘러보기</a>
           <a class="btn btn-lg btn-ghost" href="/pricing">광고 없이 쓰기 →</a>
         </div>
-        <div class="hero-mochi">
-          <div class="hero-bubble">찰칵! 캡처는 나한테 맡겨 📸</div>
-          <img src="/img/mochi.svg" alt="모찌 캐릭터" />
+        <div class="app-bento">
+          {products.filter((p) => PRODUCT_INFO[p.slug]).slice(0, 6).map((p) => (
+            <a class="bento" href={`/products/${p.slug}`} style={`--tint:${p.color}`}>
+              <img src={`/img/apps/${p.slug}.svg`} alt="" />
+              <b>{p.name}</b><span>{p.tagline}</span>
+            </a>
+          ))}
         </div>
       </div>
     </section>
     <section class="section" id="products">
       <div class="container">
         <h2>{BRAND.name} 제품</h2>
-        <p class="lead">하나씩 늘어나는 말랑한 도구들. 모두 무료로 쓸 수 있어요.</p>
+        <p class="lead">회사에서도, 집에서도. 모두 무료로 쓸 수 있어요.</p>
         <div class="cards">
           {products.map((p) => (
             <div class="card">
@@ -53,12 +57,12 @@ export const Home = ({ c, products }: { c: PageCtx; products: Product[] }) => (
     <section class="section" style="background:var(--cream)">
       <div class="container">
         <h2>모찌캡처, 이런 게 좋아요</h2>
-        <p class="lead">트레이 아이콘을 콕 누르면 바로 캡처!</p>
+        <p class="lead">작업 표시줄 아이콘을 누르면 바로 캡처돼요.</p>
         <div class="features">
           <div class="feature"><div class="emoji">✂️</div><b>6가지 캡처</b><span>직접지정 · 창 · 단위영역 · 전체 · 스크롤 · 크기지정</span></div>
-          <div class="feature"><div class="emoji">📐</div><b>크기지정 기억</b><span>정해둔 위치와 크기 그대로 다음에도 짠!</span></div>
+          <div class="feature"><div class="emoji">📐</div><b>크기지정 기억</b><span>정해 둔 위치와 크기를 다음에도 그대로</span></div>
           <div class="feature"><div class="emoji">🖍️</div><b>바로 편집</b><span>도형 · 화살표 · 펜 · 형광펜 · 모자이크 · 텍스트</span></div>
-          <div class="feature"><div class="emoji">📋</div><b>자동 복사</b><span>캡처하면 바로 Ctrl+V. 카톡·메일에 쏙</span></div>
+          <div class="feature"><div class="emoji">📋</div><b>자동 복사</b><span>캡처하면 바로 Ctrl+V. 카톡 · 메일에 붙여 넣기</span></div>
         </div>
       </div>
     </section>
@@ -66,7 +70,7 @@ export const Home = ({ c, products }: { c: PageCtx; products: Product[] }) => (
       <div class="container">
         <div class="plus-banner">
           <div><h2>광고 없이 쾌적한 {c.s.plan_name}</h2><p>월 {won(Number(c.s.price))}으로 모든 {BRAND.name} PC 제품의 광고를 없애요. 언제든 해지할 수 있어요.</p></div>
-          <a class="btn btn-lg" href="/pricing">지금 구독하기</a>
+          <a class="btn btn-lg" href="/pricing">지금 구독하기 →</a>
         </div>
       </div>
     </section>
@@ -171,7 +175,7 @@ export const Pricing = ({ c }: { c: PageCtx }) => (
   <Layout c={c} title={c.s.plan_name}>
     <section class="price-hero">
       <div class="container">
-        <span class="badge">🍡 {BRAND.name} 구독</span>
+        <span class="badge">{BRAND.name} 구독</span>
         <h1>광고 없이 쾌적한<br />{BRAND.name} <em>{c.s.plan_name.replace("모찌 ", "")}</em></h1>
         <p>모찌캡처는 물론, 앞으로 나올 모든 {BRAND.name} PC 제품에서 광고가 사라져요.</p>
       </div>
@@ -223,7 +227,7 @@ export const Login = ({ c, enabled, next }: { c: PageCtx; enabled: Record<string
     <Layout c={c} title="로그인">
       <div class="auth container">
         <img src="/img/mochi.svg" alt="" style="width:110px" />
-        <h1>로그인하고 더 말랑한 혜택을<br />누리세요!</h1>
+        <h1>로그인하고<br />모든 혜택을 누리세요</h1>
         <p class="sub">하나의 계정으로 모든 {BRAND.name} 제품을 이용할 수 있어요.</p>
         <a class={`social naver ${enabled.naver ? "" : "off"}`} href={`/login/naver${q}`}>{SocialIcons.naver}네이버 로그인</a>
         <a class={`social kakao ${enabled.kakao ? "" : "off"}`} href={`/login/kakao${q}`}>{SocialIcons.kakao}카카오 로그인</a>
@@ -254,7 +258,7 @@ export const Signup = ({ c, next, form }: { c: PageCtx; next: string; form: Reco
     <div class="auth container">
       <img src="/img/mochi.svg" alt="" style="width:90px" />
       <h1>{BRAND.name} 회원가입</h1>
-      <p class="sub">30초면 끝나요! 🍡</p>
+      <p class="sub">30초면 끝나요.</p>
       <form method="post" class="form" action="/signup">
         <Csrf c={c} /><input type="hidden" name="next" value={next} />
         <div class="field"><label>이메일</label><input class="input" type="email" name="email" required value={form.email || ""} /></div>
@@ -277,7 +281,7 @@ export const MyPage = ({ c, user, sub, lastSub, devices, payments }: {
 }) => (
   <Layout c={c} title="마이페이지">
     <div class="page container">
-      <h1>{displayName(user)} 님, 반가워요! 🍡</h1>
+      <h1>{displayName(user)} 님, 반가워요!</h1>
       <div class="grid-2">
         <div class={`panel status-card ${sub ? "" : "free"}`}>
           {sub ? (

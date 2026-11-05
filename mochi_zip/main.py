@@ -94,9 +94,9 @@ class ZipWindow(MozziWindow):
         v.addWidget(title_label("무엇을 할까요? 🍡", "압축 파일을 이 창에 끌어다 놓으면 바로 열리고, 파일·폴더를 끌어다 놓으면 압축 준비가 돼요."))
         grid = QGridLayout()
         grid.setSpacing(px(16))
-        cards = [("압축하기", "파일·폴더를 하나로 꾹!", "zipnew", "#ff6f91", lambda: self.show_page("compress")),
-                 ("압축 파일 열기", "안에 무엇이 있는지 보고 골라서 풀기", "zipopen", "#7ec8a9", self.choose_archive),
-                 ("바로 풀기", "같은 폴더에 바로 풀기", "extract", "#ffb86b", self.choose_and_extract)]
+        cards = [("압축하기", "파일·폴더를 하나로 꾹!", "zipnew", "#4f5bff", lambda: self.show_page("compress")),
+                 ("압축 파일 열기", "안에 무엇이 있는지 보고 골라서 풀기", "zipopen", "#14b8a6", self.choose_archive),
+                 ("바로 풀기", "같은 폴더에 바로 풀기", "extract", "#f59e0b", self.choose_and_extract)]
         for i, (t, d, ic, color, fn) in enumerate(cards):
             c = ToolCard(t, d, ic, color)
             c.setMinimumSize(px(300), px(180))
@@ -104,7 +104,7 @@ class ZipWindow(MozziWindow):
             grid.addWidget(c, 0, i)
         v.addLayout(grid)
         tip = QLabel("✔ ZIP · 7Z · TAR(GZ/BZ2/XZ) 열기   ✔ 암호 압축(AES-256)   ✔ 한글 파일 이름이 깨진 ZIP 도 올바르게")
-        tip.setStyleSheet("color:#8a7c7e; margin-top: 12px;")
+        tip.setStyleSheet("color:#64748b; margin-top: 12px;")
         v.addWidget(tip)
         v.addStretch(1)
         return w
@@ -180,14 +180,14 @@ class ZipWindow(MozziWindow):
         self.archive_picker = FilePicker(A.OPEN_EXTS, A.FILTER, self._start, self._remember, "압축 파일을 고르거나 끌어다 놓으세요")
         self.archive_picker.picked.connect(self.open_archive)
         self.info = QLabel("")
-        self.info.setStyleSheet("color:#8a7c7e;")
+        self.info.setStyleSheet("color:#64748b;")
         tree = QTreeWidget()
         tree.setHeaderLabels(["이름", "크기", "압축된 크기", "수정한 날짜"])
         tree.setSelectionMode(QAbstractItemView.ExtendedSelection)
         tree.setAlternatingRowColors(True)
         tree.header().setSectionResizeMode(0, QHeaderView.Stretch)
-        tree.setStyleSheet(f"QTreeWidget {{ background: white; border: 1px solid #efe6e3; border-radius: {px(10)}px; font-size: 10.5pt; }}"
-                           "QTreeWidget::item:selected { background: #ffe3eb; color: #3b2f2f; }")
+        tree.setStyleSheet(f"QTreeWidget {{ background: white; border: 1px solid #e2e8f0; border-radius: {px(10)}px; font-size: 10.5pt; }}"
+                           "QTreeWidget::item:selected { background: #e0e4ff; color: #0f172a; }")
         self.tree = tree
         row = QHBoxLayout()
         sel = QPushButton(" 고른 것만 풀기…")

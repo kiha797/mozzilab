@@ -632,7 +632,7 @@ class ResultWindow(QMainWindow):
         self.account_btn.setStyleSheet(
             f"QToolButton#accountBtn {{ border: 1.5px solid {ACCENT}; color: {ACCENT}; border-radius: {px(6)}px;"
             f" padding: {px(5)}px {px(14)}px; font-weight: bold; background: white; }}"
-            "QToolButton#accountBtn:hover { background: #fff0f4; }"
+            "QToolButton#accountBtn:hover { background: #eef0ff; }"
             "QToolButton#accountBtn::menu-indicator { image: none; width: 0; }")
         self.account_btn.clicked.connect(self._account_clicked)
         self.plan_label = QLabel("")

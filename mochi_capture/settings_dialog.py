@@ -71,7 +71,7 @@ class FileNameDialog(QDialog):
         self.start.setRange(1, 99999)
         self.start.setValue(int(work.get("name_counter_next", 1)))
         self.preview = QLabel()
-        self.preview.setStyleSheet("color:#ff6f91; font-weight:bold;")
+        self.preview.setStyleSheet("color:#4f5bff; font-weight:bold;")
         form.addRow("앞 글자", self.prefix)
         form.addRow("날짜/시간", self.date)
         form.addRow("", self.counter)
@@ -151,8 +151,8 @@ class SettingsDialog(QDialog):
             QDialog {{ background: #ffffff; }}
             QListWidget#settingsNav {{ border: 1px solid #c9ced6; background: white; outline: 0; }}
             QListWidget#settingsNav::item {{ padding: {px(8)}px {px(6)}px; color: #333; }}
-            QListWidget#settingsNav::item:selected {{ background: #ffe3eb; color: #333; }}
-            QListWidget#settingsNav::item:hover {{ background: #fff0f4; }}
+            QListWidget#settingsNav::item:selected {{ background: #e0e4ff; color: #333; }}
+            QListWidget#settingsNav::item:hover {{ background: #eef0ff; }}
             QLabel#sectionTitle {{ font-weight: bold; font-size: 11pt; margin-top: {px(4)}px; }}
             QFrame#sectionLine {{ color: #d5d9e0; margin: {px(6)}px 0; }}
             QCheckBox {{ spacing: {px(8)}px; padding: {px(3)}px 0; font-size: 10.5pt; }}

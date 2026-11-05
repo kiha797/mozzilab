@@ -19,7 +19,7 @@ class Toast(QWidget):
         self.setObjectName("toast")
         self.setAttribute(Qt.WA_StyledBackground)
         self.setStyleSheet("QWidget#toast { background: white; border: 1px solid #c9d3e3; border-radius: 6px; }"
-                           "QLabel#toastTitle { font-weight: bold; color: #ff6f91; }")
+                           "QLabel#toastTitle { font-weight: bold; color: #4f5bff; }")
         v = QVBoxLayout(self)
         v.setContentsMargins(px(16), px(12), px(16), px(12))
         t = QLabel(title)

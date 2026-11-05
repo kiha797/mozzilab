@@ -93,7 +93,7 @@ class MozziWindow(QMainWindow):
         self.account_btn.setStyleSheet(
             f"QToolButton#accountBtn {{ border: 1.5px solid {ACCENT}; color: {ACCENT}; border-radius: {px(6)}px;"
             f" padding: {px(5)}px {px(14)}px; font-weight: bold; background: white; }}"
-            "QToolButton#accountBtn:hover { background: #fff0f4; }"
+            "QToolButton#accountBtn:hover { background: #eef0ff; }"
             "QToolButton#accountBtn::menu-indicator { image: none; width: 0; }")
         self.account_btn.clicked.connect(self._account_clicked)
         self.plan_label = QLabel("")
@@ -106,7 +106,7 @@ class MozziWindow(QMainWindow):
 
         self.body = QStackedWidget()
         self.body.setObjectName("body")
-        self.body.setStyleSheet("QStackedWidget#body { background: #fbf8f6; }")
+        self.body.setStyleSheet("QStackedWidget#body { background: #f8fafc; }")
         root.addWidget(self.body, 1)
         self.popup_ad = PopupAd(self.ads, self.body)
         self.body.currentChanged.connect(lambda _: self.popup_ad.isVisible() and self.popup_ad.raise_())
@@ -137,7 +137,7 @@ class MozziWindow(QMainWindow):
         self.updater = Updater(self.cfg, on_quit=self.close,
                                busy=lambda: bool(self.worker and self.worker.isRunning()))
         QTimer.singleShot(8000, self.updater.check)
-        ver = QLabel(f"<a href='#' style='color:#a3979a; text-decoration:none'>v{brand.APP_VERSION} · 업데이트 확인</a>")
+        ver = QLabel(f"<a href='#' style='color:#94a3b8; text-decoration:none'>v{brand.APP_VERSION} · 업데이트 확인</a>")
         ver.linkActivated.connect(lambda _: self.updater.check(manual=True))
         sb.addWidget(ver)
 
