@@ -118,7 +118,9 @@ jobs:
 
       - name: 설치파일(Setup.exe) 만들기
         run: |
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss
+          $out = & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss 2>&1 | Out-String
+          Write-Host $out
+          if ($LASTEXITCODE -ne 0) { $t = $out.Substring([Math]::Max(0, $out.Length - 1800)) -replace "`r?`n", " | "; Write-Host "::error title=installer::$t"; exit 1 }
           Get-ChildItem installer_output
 
       - uses: actions/upload-artifact@v4
@@ -211,7 +213,9 @@ jobs:
       - name: 설치파일(Setup.exe) 만들기
         working-directory: ${{ matrix.dir }}
         run: |
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss
+          $out = & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ steps.ver.outputs.version }}" installer.iss 2>&1 | Out-String
+          Write-Host $out
+          if ($LASTEXITCODE -ne 0) { $t = $out.Substring([Math]::Max(0, $out.Length - 1800)) -replace "`r?`n", " | "; Write-Host "::error title=installer::$t"; exit 1 }
           Get-ChildItem installer_output
 
       - uses: actions/upload-artifact@v4
@@ -379,7 +383,9 @@ jobs:
       - name: 설치파일(Setup.exe) 만들기
         working-directory: mochi_hwp
         run: |
-          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ needs.version.outputs.version }}" installer.iss
+          $out = & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=${{ needs.version.outputs.version }}" installer.iss 2>&1 | Out-String
+          Write-Host $out
+          if ($LASTEXITCODE -ne 0) { $t = $out.Substring([Math]::Max(0, $out.Length - 1800)) -replace "`r?`n", " | "; Write-Host "::error title=installer::$t"; exit 1 }
           Get-ChildItem installer_output
 
       - uses: actions/upload-artifact@v4
