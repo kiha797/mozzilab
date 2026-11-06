@@ -4,7 +4,7 @@
 
 [Code]
 var
-  MozziForm: TSetupForm;
+  MozziForm: TForm;
   MozziText: TNewStaticText;
   MozziBar: TNewProgressBar;
 
@@ -22,7 +22,7 @@ var
 begin
   if (not WizardSilent) or (MozziForm <> nil) then
     Exit;
-  MozziForm := TSetupForm.CreateNew(nil);
+  MozziForm := TForm.CreateNew(nil);
   MozziForm.ClientWidth := ScaleX(400);
   MozziForm.ClientHeight := ScaleY(150);
   MozziForm.BorderStyle := bsDialog;
