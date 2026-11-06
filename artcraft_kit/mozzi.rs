@@ -448,7 +448,7 @@ impl State {
 
     fn install(&mut self) {
         let Some(path) = self.update.as_ref().and_then(|u| u.ready.clone()) else { return };
-        let r = std::process::Command::new(&path).args(["/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS"]).spawn();
+        let r = std::process::Command::new(&path).args(["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS", "/MOZZIUPDATE=1"]).spawn();
         match r {
             Ok(_) => self.quit = true,
             Err(e) => {

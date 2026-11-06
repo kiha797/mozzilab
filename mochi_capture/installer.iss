@@ -4,7 +4,7 @@
 #ifndef MyAppVersion
   #define MyAppVersion "1.0.0"
 #endif
-#define MyAppPublisher "모찌랩 (MozziLab)"
+#define MyAppPublisher "모찌LAB. (MozziLab)"
 #define MyAppExeName "MochiCapture.exe"
 
 [Setup]
@@ -49,3 +49,6 @@ Filename: "{app}\{#MyAppExeName}"; Flags: nowait; Check: WizardSilent
 
 [UninstallRun]
 Filename: "taskkill"; Parameters: "/f /im {#MyAppExeName}"; Flags: runhidden; RunOnceId: "KillApp"
+
+; 자동 업데이트 때는 설치 화면 대신 "업데이트하고 있어요" 창
+#include "..\shared\installer_update.iss"

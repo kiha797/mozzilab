@@ -17,7 +17,8 @@ from ui import ACCENT, app_icon, mochi_pixmap, px
 RELEASE_API = "https://api.github.com/repos/kiha797/mozzilab/releases/latest"
 CHECK_EVERY = timedelta(hours=3)
 MANDATORY_MARK = "[필수]"
-SILENT_ARGS = ["/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS"]
+# /VERYSILENT: 설치 화면은 숨기고, 설치파일이 작은 "업데이트하고 있어요" 창만 띄운다 (shared/installer_update.iss)
+SILENT_ARGS = ["/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/SP-", "/CLOSEAPPLICATIONS", "/MOZZIUPDATE=1"]
 
 
 def parse_version(v):
